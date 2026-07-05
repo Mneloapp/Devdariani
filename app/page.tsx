@@ -7,8 +7,8 @@ import {
   HeroSilence,
   ManifestoSection,
   MethodologySection,
-  MneloSection,
   OrchestricsReveal,
+  PrecisionTransition,
   SiteFooter,
   SystemsSection,
 } from "@/components/devdariani";
@@ -32,7 +32,7 @@ export default function Home() {
       <FrameworkSection />
       <CompanyIntro />
       <SystemsSection />
-      <MneloSection />
+      <PrecisionTransition />
       <FinalCTA />
       <SiteFooter />
     </main>

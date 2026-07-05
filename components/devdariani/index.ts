@@ -7,7 +7,7 @@ export { FragmentationSection } from "./FragmentationSection";
 export { HeroSilence } from "./HeroSilence";
 export { ManifestoSection } from "./ManifestoSection";
 export { MethodologySection } from "./MethodologySection";
-export { MneloSection } from "./MneloSection";
 export { OrchestricsReveal } from "./OrchestricsReveal";
+export { PrecisionTransition } from "./PrecisionTransition";
 export { SiteFooter } from "./SiteFooter";
 export { SystemsSection } from "./SystemsSection";
