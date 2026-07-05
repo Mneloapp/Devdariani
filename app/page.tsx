@@ -1,24 +1,12 @@
 import {
-  ApproachList,
   EditorialFooter,
   EditorialHeader,
   EditorialSection,
-  ImageBlock,
-  LargeStatement,
-  PrincipleList,
+  KineticSpread,
+  StudioStatement,
+  SystemsField,
   WorkIndex,
 } from "@/components/devdariani";
-
-const coordinatedSystems = [
-  "Structure",
-  "HVAC",
-  "Electrical",
-  "Plumbing",
-  "Fire Protection",
-  "BMS",
-  "Procurement",
-  "Commissioning",
-];
 
 export default function Home() {
   return (
@@ -42,56 +30,39 @@ export default function Home() {
         </div>
       </section>
 
-      <LargeStatement
-        eyebrow="Statement"
-        lines={["Modern buildings are no longer built.", "They are orchestrated."]}
+      <KineticSpread />
+
+      <StudioStatement
+        kicker="Statement"
+        line="Buildings are orchestrated."
       />
 
-      <ImageBlock />
-
-      <LargeStatement
+      <StudioStatement
         dark
-        eyebrow="Core Thought"
-        lines={["Complexity deserves coordination."]}
+        kicker="Core"
+        line="Complexity deserves coordination."
       />
 
       <EditorialSection
         id="orchestrics"
-        className="section-shell flex min-h-screen items-center py-24 md:py-40"
+        className="section-shell flex min-h-[80vh] items-center py-24 md:py-36"
       >
         <div className="grid w-full gap-16 md:grid-cols-[0.75fr_1.25fr] md:items-end">
-          <p className="text-sm uppercase tracking-[0.24em] text-muted">Orchestrics™</p>
+          <p className="text-sm uppercase tracking-[0.24em] text-muted">(2) Orchestrics™</p>
           <div>
             <h2 className="text-[clamp(3.4rem,9vw,9.5rem)] font-light leading-none text-ink">
               Orchestrics™
             </h2>
-            <p className="mt-8 max-w-2xl text-[clamp(1.15rem,2vw,1.7rem)] font-light leading-snug text-muted">
-              A methodology for transforming complex building projects into
-              coordinated systems.
+            <p className="mt-8 max-w-xl text-[clamp(1.05rem,1.8vw,1.45rem)] font-light leading-snug text-muted">
+              Complex projects. One coordinated system.
             </p>
           </div>
         </div>
       </EditorialSection>
 
-      <PrincipleList />
-
-      <EditorialSection
-        className="section-shell flex min-h-screen items-center py-24 md:py-40"
-      >
-        <div className="w-full">
-          <p className="mb-14 text-sm uppercase tracking-[0.24em] text-muted">
-            What We Coordinate
-          </p>
-          <div className="grid gap-x-10 gap-y-5 text-[clamp(2.1rem,5vw,6rem)] font-light leading-none text-ink md:grid-cols-2">
-            {coordinatedSystems.map((system) => (
-              <p key={system}>{system}</p>
-            ))}
-          </div>
-        </div>
-      </EditorialSection>
+      <SystemsField />
 
       <WorkIndex />
-      <ApproachList />
 
       <EditorialSection
         id="contact"
@@ -102,8 +73,7 @@ export default function Home() {
             Contact
           </p>
           <h2 className="text-balance text-[clamp(2.7rem,7vw,7.2rem)] font-light leading-[0.98] text-ink">
-            If your project demands coordination instead of compromise, start
-            the conversation.
+            Coordination instead of compromise.
           </h2>
           <a href="mailto:hello@devdariani.com" className="editorial-button mt-12">
             Start the Conversation
