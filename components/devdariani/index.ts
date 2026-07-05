@@ -7,5 +7,6 @@ export { KineticSpread } from "./KineticSpread";
 export { LargeStatement } from "./LargeStatement";
 export { PrincipleList } from "./PrincipleList";
 export { StudioStatement } from "./StudioStatement";
+export { SystemsConstellation } from "./SystemsConstellation";
 export { SystemsField } from "./SystemsField";
 export { WorkIndex } from "./WorkIndex";

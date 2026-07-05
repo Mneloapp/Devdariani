@@ -4,6 +4,7 @@ import {
   EditorialSection,
   KineticSpread,
   StudioStatement,
+  SystemsConstellation,
   SystemsField,
   WorkIndex,
 } from "@/components/devdariani";
@@ -29,6 +30,8 @@ export default function Home() {
           </EditorialSection>
         </div>
       </section>
+
+      <SystemsConstellation />
 
       <KineticSpread />
 
