@@ -2,6 +2,7 @@ export { ApproachList } from "./ApproachList";
 export { EditorialFooter } from "./EditorialFooter";
 export { EditorialHeader } from "./EditorialHeader";
 export { EditorialSection } from "./EditorialSection";
+export { DynamicHero } from "./DynamicHero";
 export { ImageBlock } from "./ImageBlock";
 export { KineticSpread } from "./KineticSpread";
 export { LargeStatement } from "./LargeStatement";

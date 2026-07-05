@@ -41,16 +41,26 @@ function SystemPoint({
   index: number;
   progress: MotionValue<number>;
 }) {
-  const scale = useTransform(progress, [0, 0.45, 1], [0.72, 1.08, 1]);
+  const scale = useTransform(progress, [0, 0.45, 1], [0.68, 1.18, 1]);
   const opacity = useTransform(progress, [0, 0.22 + index * 0.035], [0, 1]);
+  const driftX = useTransform(
+    progress,
+    [0, 1],
+    [index % 2 === 0 ? -26 : 24, index % 2 === 0 ? 10 : -8],
+  );
+  const driftY = useTransform(
+    progress,
+    [0, 1],
+    [index % 3 === 0 ? 22 : -18, index % 3 === 0 ? -6 : 8],
+  );
 
   return (
     <motion.div
-      style={{ left: `${x}%`, top: `${y}%`, opacity, scale }}
+      style={{ left: `${x}%`, top: `${y}%`, opacity, scale, x: driftX, y: driftY }}
       className="absolute -translate-x-1/2 -translate-y-1/2"
     >
-      <span className="block h-2.5 w-2.5 rounded-full bg-ivory shadow-[0_0_28px_rgba(244,241,234,0.42)]" />
-      <span className="mt-4 block whitespace-nowrap text-[0.62rem] uppercase tracking-[0.2em] text-ivory/46">
+      <span className="block h-3.5 w-3.5 rounded-full bg-ivory shadow-[0_0_42px_rgba(244,241,234,0.58)]" />
+      <span className="mt-5 block whitespace-nowrap text-[clamp(0.78rem,1.15vw,1.05rem)] uppercase tracking-[0.24em] text-ivory/72">
         {label}
       </span>
     </motion.div>
@@ -78,8 +88,8 @@ function LinkLine({
       y1={start.y}
       x2={end.x}
       y2={end.y}
-      stroke="rgba(244,241,234,0.34)"
-      strokeWidth="0.055"
+      stroke="rgba(244,241,234,0.52)"
+      strokeWidth="0.075"
       style={{ opacity: lineOpacity, pathLength }}
     />
   );
@@ -92,14 +102,14 @@ export function SystemsConstellation() {
     offset: ["start 78%", "end 28%"],
   });
   const progress = useSpring(scrollYProgress, { stiffness: 64, damping: 24 });
-  const lineOpacity = useTransform(progress, [0.18, 0.55], [0, 0.62]);
+  const lineOpacity = useTransform(progress, [0.18, 0.55], [0, 0.86]);
   const captionOpacity = useTransform(progress, [0.46, 0.78], [0, 1]);
   const captionY = useTransform(progress, [0.46, 0.78], [24, 0]);
 
   return (
     <section ref={ref} className="min-h-screen bg-dark text-ivory">
       <div className="section-shell relative flex min-h-screen items-center py-24 md:py-36">
-        <div className="relative h-[72vh] min-h-[560px] w-full overflow-hidden">
+        <div className="relative h-[78vh] min-h-[620px] w-full overflow-hidden">
           <svg
             className="absolute inset-0 h-full w-full"
             viewBox="0 0 100 100"
@@ -131,12 +141,12 @@ export function SystemsConstellation() {
 
           <motion.div
             style={{ opacity: captionOpacity, y: captionY }}
-            className="absolute bottom-0 left-0 max-w-3xl"
+            className="absolute bottom-8 left-0 max-w-3xl md:bottom-0"
           >
-            <p className="mb-6 text-sm uppercase tracking-[0.24em] text-ivory/44">
+            <p className="mb-6 text-sm uppercase tracking-[0.24em] text-ivory/50">
               (2) Systems
             </p>
-            <h2 className="text-balance text-[clamp(2.8rem,7vw,7.8rem)] font-light leading-[0.92]">
+            <h2 className="text-balance text-[clamp(2.3rem,7vw,7.8rem)] font-light leading-[0.92] text-ivory/86">
               One coordinated field.
             </h2>
           </motion.div>
