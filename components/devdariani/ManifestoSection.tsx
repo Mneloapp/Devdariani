@@ -16,7 +16,7 @@ export function ManifestoSection({
   return (
     <SectionMotion
       id={id}
-      className="section-shell flex min-h-[86vh] items-center py-32 md:py-44"
+      className="section-shell flex min-h-screen items-center py-32 md:py-44"
     >
       <div
         className={
@@ -30,7 +30,7 @@ export function ManifestoSection({
           {lines.map((line) => (
             <p
               key={line}
-              className="text-balance text-[clamp(2.15rem,5.35vw,5.4rem)] font-light leading-[1.02] text-text"
+              className="text-balance text-[clamp(2.55rem,6vw,6.6rem)] font-light leading-[0.98] text-text"
             >
               {line}
             </p>

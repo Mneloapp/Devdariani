@@ -1,5 +1,4 @@
 import {
-  CaseStudyPreview,
   CompanyIntro,
   FinalCTA,
   FloatingNav,
@@ -25,25 +24,14 @@ export default function Home() {
         lines={[
           "Modern buildings are no longer built.",
           "They are orchestrated.",
-          "Yet most projects are still managed as isolated disciplines.",
         ]}
       />
       <FragmentationSection />
       <OrchestricsReveal />
       <MethodologySection />
-      <ManifestoSection
-        eyebrow="The Art of Orchestrics"
-        align="center"
-        lines={[
-          "Engineering is no longer about isolated systems.",
-          "It is about how systems become one.",
-          "The Art of Orchestrics™ is the discipline of designing, integrating and delivering buildings as coordinated wholes.",
-        ]}
-      />
+      <FrameworkSection />
       <CompanyIntro />
       <SystemsSection />
-      <FrameworkSection />
-      <CaseStudyPreview />
       <MneloSection />
       <FinalCTA />
       <SiteFooter />

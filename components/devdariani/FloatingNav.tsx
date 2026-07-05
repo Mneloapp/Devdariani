@@ -6,7 +6,6 @@ const navItems = [
   ["Orchestrics", "#orchestrics"],
   ["Framework", "#framework"],
   ["Systems", "#systems"],
-  ["Proof", "#proof"],
   ["Mnelo", "#mnelo"],
   ["Contact", "#contact"],
 ];

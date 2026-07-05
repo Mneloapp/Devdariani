@@ -95,9 +95,6 @@ export function HeroSilence() {
           <p className="mt-8 max-w-2xl text-[clamp(1.25rem,2.4vw,2.45rem)] font-light leading-tight text-text/88">
             Engineering the Whole.
           </p>
-          <a href="#world" className="premium-button mt-12">
-            Discover Orchestrics™
-          </a>
         </div>
       </motion.div>
       <div className="absolute bottom-0 left-0 right-0 h-px bg-line" />
