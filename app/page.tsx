@@ -25,22 +25,21 @@ export default function Home() {
     <main>
       <EditorialHeader />
 
-      <section
-        id="index"
-        className="section-shell flex min-h-screen flex-col justify-between pb-16 pt-28 md:pb-24 md:pt-36"
-      >
-        <EditorialSection className="max-w-6xl">
-          <p className="mb-10 text-[clamp(3.2rem,11vw,11rem)] font-medium leading-[0.86] text-ink">
-            DEVDARIANI
-          </p>
-          <h1 className="text-[clamp(2rem,5vw,5.8rem)] font-light leading-[0.98] text-ink">
-            Engineering the Whole.
-          </h1>
-        </EditorialSection>
-        <EditorialSection delay={0.18} className="flex justify-between gap-8 text-sm uppercase tracking-[0.22em] text-muted">
-          <p>The Art of Orchestrics™</p>
-          <p>Index / 01</p>
-        </EditorialSection>
+      <section id="index" className="min-h-screen bg-dark text-ivory">
+        <div className="section-shell flex min-h-screen flex-col justify-between pb-16 pt-32 md:pb-24 md:pt-40">
+          <EditorialSection className="max-w-6xl pt-[18vh]">
+            <p className="mb-10 text-[clamp(2.5rem,10.6vw,11rem)] font-medium leading-[0.86] text-ivory">
+              DEVDARIANI
+            </p>
+            <h1 className="text-[clamp(2rem,5vw,5.8rem)] font-light leading-[0.98] text-ivory/88">
+              Engineering the Whole.
+            </h1>
+          </EditorialSection>
+          <EditorialSection delay={0.18} className="flex justify-between gap-8 text-sm uppercase tracking-[0.22em] text-ivory/52">
+            <p>The Art of Orchestrics™</p>
+            <p>(1) Welcome</p>
+          </EditorialSection>
+        </div>
       </section>
 
       <LargeStatement
