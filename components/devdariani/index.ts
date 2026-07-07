@@ -3,6 +3,7 @@ export { EditorialFooter } from "./EditorialFooter";
 export { EditorialHeader } from "./EditorialHeader";
 export { EditorialSection } from "./EditorialSection";
 export { DynamicHero } from "./DynamicHero";
+export { Hero3D } from "./Hero3D";
 export { ImageBlock } from "./ImageBlock";
 export { KineticSpread } from "./KineticSpread";
 export { LargeStatement } from "./LargeStatement";
