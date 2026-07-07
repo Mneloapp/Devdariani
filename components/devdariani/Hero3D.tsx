@@ -40,6 +40,7 @@ export function Hero3D() {
   const order = useTransform(smooth, [0, 1], [0.16, 0.92]);
   const titleY = useTransform(smooth, [0, 1], [0, -82]);
   const titleOpacity = useTransform(smooth, [0, 0.88], [1, 0.55]);
+  const meterWidth = useTransform(smooth, [0, 1], ["18%", "100%"]);
 
   useMotionValueEvent(order, "change", (latest) => {
     setFieldOrder(latest);
@@ -51,7 +52,7 @@ export function Hero3D() {
       id="index"
       className="relative min-h-screen overflow-hidden bg-dark text-ivory"
     >
-      <div className="absolute inset-0 opacity-80">
+      <div className="absolute bottom-0 right-0 top-0 w-full opacity-95 md:left-[28%] md:w-[72%]">
         {shouldRender3D ? (
           <motion.div className="h-full w-full">
             <RelationalField3D order={fieldOrder} />
@@ -60,6 +61,7 @@ export function Hero3D() {
           <div className="h-full w-full bg-[radial-gradient(circle_at_70%_38%,rgba(244,241,234,0.12),transparent_24rem)]" />
         )}
       </div>
+      <div className="absolute inset-0 bg-[linear-gradient(90deg,#070707_0%,rgba(7,7,7,0.96)_24%,rgba(7,7,7,0.5)_56%,rgba(7,7,7,0.12)_100%)]" />
 
       <div className="absolute left-[8%] right-[8%] top-[18%] h-px bg-ivory/12" />
       <div className="absolute bottom-[24%] left-[18%] right-[28%] h-px bg-ivory/10" />
@@ -97,7 +99,16 @@ export function Hero3D() {
           className="flex justify-between gap-8 text-sm uppercase tracking-[0.22em] text-ivory/52"
         >
           <p>The Art of Orchestrics™</p>
-          <p>Complexity / Coordination / Order</p>
+          <div className="hidden min-w-72 md:block">
+            <div className="mb-3 flex justify-between gap-5">
+              <span>Complexity</span>
+              <span>Coordination</span>
+              <span>Order</span>
+            </div>
+            <div className="h-px bg-ivory/18">
+              <motion.div className="h-px bg-ivory/72" style={{ width: meterWidth }} />
+            </div>
+          </div>
         </motion.div>
       </div>
     </section>

@@ -1,6 +1,6 @@
 "use client";
 
-import { Line, Sphere } from "@react-three/drei";
+import { Html, Line, Sphere } from "@react-three/drei";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { useMemo, useRef } from "react";
 import * as THREE from "three";
@@ -10,15 +10,15 @@ type RelationalField3DProps = {
 };
 
 const nodes = [
-  { label: "Structure", start: [-2.9, 1.2, -0.5], end: [-2.1, 0.86, -0.3] },
-  { label: "HVAC", start: [-0.7, 2.15, 0.4], end: [-0.76, 1.28, 0.18] },
-  { label: "Electrical", start: [2.75, 1.55, -0.8], end: [1.74, 0.82, -0.26] },
-  { label: "Plumbing", start: [1.5, -1.65, 0.6], end: [0.92, -0.82, 0.12] },
-  { label: "Fire", start: [-2.4, -1.85, 0.8], end: [-1.38, -0.92, 0.28] },
-  { label: "BMS", start: [3.1, -1.2, 0.35], end: [2.16, -0.68, 0.2] },
-  { label: "Procurement", start: [-3.3, -2.2, -0.2], end: [-2.22, -1.44, -0.1] },
-  { label: "Commissioning", start: [0.2, 0.1, 1.2], end: [0.05, 0.02, 0.48] },
-  { label: "Orchestrics", start: [0.8, -0.2, -1.4], end: [0.16, -0.12, -0.12] },
+  { label: "Structure", start: [-3.7, 1.8, -0.9], end: [-2.05, 0.9, -0.28] },
+  { label: "HVAC", start: [-0.2, 2.9, 0.8], end: [-0.72, 1.38, 0.16] },
+  { label: "Electrical", start: [3.7, 1.95, -1.1], end: [1.84, 0.78, -0.22] },
+  { label: "Plumbing", start: [2.2, -2.55, 0.8], end: [0.98, -0.86, 0.1] },
+  { label: "Fire", start: [-3.2, -2.35, 1], end: [-1.42, -0.96, 0.26] },
+  { label: "BMS", start: [3.9, -1.8, 0.45], end: [2.15, -0.7, 0.18] },
+  { label: "Procurement", start: [-4.1, -2.85, -0.3], end: [-2.24, -1.48, -0.08] },
+  { label: "Commissioning", start: [0.45, 0.28, 1.65], end: [0.08, 0.03, 0.46] },
+  { label: "Orchestrics", start: [1.7, -0.45, -1.8], end: [0.12, -0.1, -0.1] },
 ];
 
 const links = [
@@ -54,49 +54,74 @@ function FieldScene({ order = 0 }: RelationalField3DProps) {
   useFrame(({ clock }) => {
     const time = clock.getElapsedTime();
     if (group.current) {
-      group.current.rotation.y = Math.sin(time * 0.18) * 0.08;
-      group.current.rotation.x = Math.sin(time * 0.12) * 0.035;
+      group.current.rotation.y = Math.sin(time * 0.16) * 0.11 + order * 0.08;
+      group.current.rotation.x = Math.sin(time * 0.12) * 0.04;
     }
 
     nodeRefs.current.forEach((mesh, index) => {
       if (!mesh) return;
       const node = nodes[index];
       const target = interpolate(node.start, node.end, order);
-      target.x += Math.sin(time * 0.32 + index) * 0.035;
-      target.y += Math.cos(time * 0.28 + index * 0.7) * 0.03;
-      mesh.position.lerp(target, 0.08);
+      target.x += Math.sin(time * 0.42 + index) * (0.05 - order * 0.02);
+      target.y += Math.cos(time * 0.34 + index * 0.7) * (0.045 - order * 0.018);
+      mesh.position.lerp(target, 0.075);
     });
   });
 
   return (
-    <group ref={group}>
+    <group ref={group} position={[-0.24, 0, 0]} scale={0.88}>
       {links.map(([a, b]) => (
         <Line
           key={`${a}-${b}`}
           points={[positions[a], positions[b]]}
           color="#f4f1ea"
           transparent
-          opacity={0.16 + order * 0.42}
-          lineWidth={0.7}
+          opacity={0.22 + order * 0.5}
+          lineWidth={1}
         />
       ))}
       {nodes.map((node, index) => {
         const isCore = node.label === "Orchestrics";
         return (
-          <Sphere
-            key={node.label}
-            ref={(mesh) => {
-              nodeRefs.current[index] = mesh;
-            }}
-            args={[isCore ? 0.072 : 0.048, 24, 24]}
-            position={positions[index]}
-          >
-            <meshBasicMaterial
-              color={isCore ? "#F4F1EA" : "#C9C6BE"}
-              transparent
-              opacity={isCore ? 0.95 : 0.72}
-            />
-          </Sphere>
+          <group key={node.label} position={positions[index]}>
+            <Sphere
+              ref={(mesh) => {
+                nodeRefs.current[index] = mesh;
+              }}
+              args={[isCore ? 0.12 : 0.07, 32, 32]}
+            >
+              <meshBasicMaterial
+                color={isCore ? "#F4F1EA" : "#C9C6BE"}
+                transparent
+                opacity={isCore ? 1 : 0.82}
+              />
+            </Sphere>
+            {isCore ? (
+              <mesh rotation={[Math.PI / 2, 0, 0]}>
+                <torusGeometry args={[0.23, 0.006, 12, 80]} />
+                <meshBasicMaterial color="#F4F1EA" transparent opacity={0.34 + order * 0.35} />
+              </mesh>
+            ) : null}
+            <Html
+              center
+              distanceFactor={7}
+              position={[0, isCore ? -0.34 : -0.24, 0]}
+              style={{ pointerEvents: "none" }}
+            >
+              <span
+                style={{
+                  color: "rgba(244,241,234,0.64)",
+                  display: "block",
+                  fontSize: isCore ? "10px" : "8px",
+                  letterSpacing: "0.22em",
+                  textTransform: "uppercase",
+                  whiteSpace: "nowrap",
+                }}
+              >
+                {node.label}
+              </span>
+            </Html>
+          </group>
         );
       })}
     </group>
@@ -106,7 +131,7 @@ function FieldScene({ order = 0 }: RelationalField3DProps) {
 export function RelationalField3D({ order = 0 }: RelationalField3DProps) {
   return (
     <Canvas
-      camera={{ position: [0, 0, 5.2], fov: 42 }}
+      camera={{ position: [0, 0, 6.2], fov: 48 }}
       dpr={[1, 1.5]}
       gl={{ antialias: true, alpha: true, powerPreference: "high-performance" }}
     >
