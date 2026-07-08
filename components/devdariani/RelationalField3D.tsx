@@ -6,7 +6,10 @@ import { useMemo, useRef } from "react";
 import * as THREE from "three";
 
 type RelationalField3DProps = {
+  activeLabel?: string;
   order?: number;
+  revealedLabels?: string[];
+  tone?: "dark" | "light";
 };
 
 const nodes = [
@@ -35,6 +38,22 @@ const links = [
   [5, 8],
 ];
 
+const orbitPoints = [
+  { radiusX: 2.9, radiusY: 1.08, z: -0.18, tilt: 0.28, opacity: 0.2 },
+  { radiusX: 2.35, radiusY: 1.72, z: 0.08, tilt: -0.42, opacity: 0.16 },
+  { radiusX: 3.2, radiusY: 0.68, z: 0.2, tilt: 0.86, opacity: 0.12 },
+].map((orbit) => ({
+  ...orbit,
+  points: Array.from({ length: 132 }, (_, index) => {
+    const angle = (index / 131) * Math.PI * 2;
+    return new THREE.Vector3(
+      Math.cos(angle) * orbit.radiusX,
+      Math.sin(angle) * orbit.radiusY,
+      orbit.z + Math.sin(angle * 2) * 0.08,
+    );
+  }),
+}));
+
 function interpolate(start: number[], end: number[], amount: number) {
   return new THREE.Vector3(
     THREE.MathUtils.lerp(start[0], end[0], amount),
@@ -43,9 +62,27 @@ function interpolate(start: number[], end: number[], amount: number) {
   );
 }
 
-function FieldScene({ order = 0 }: RelationalField3DProps) {
+function FieldScene({
+  activeLabel = "Orchestrics",
+  order = 0,
+  revealedLabels = [],
+  tone = "dark",
+}: RelationalField3DProps) {
   const group = useRef<THREE.Group>(null);
-  const nodeRefs = useRef<Array<THREE.Mesh | null>>([]);
+  const nodeRefs = useRef<Array<THREE.Group | null>>([]);
+  const palette = tone === "light"
+    ? {
+        line: "#111111",
+        core: "#111111",
+        node: "#2B2B2B",
+        label: "rgba(17,17,17,0.58)",
+      }
+    : {
+        line: "#f4f1ea",
+        core: "#F4F1EA",
+        node: "#C9C6BE",
+        label: "rgba(244,241,234,0.64)",
+      };
   const positions = useMemo(
     () => nodes.map((node) => interpolate(node.start, node.end, order)),
     [order],
@@ -58,48 +95,97 @@ function FieldScene({ order = 0 }: RelationalField3DProps) {
       group.current.rotation.x = Math.sin(time * 0.12) * 0.04;
     }
 
-    nodeRefs.current.forEach((mesh, index) => {
-      if (!mesh) return;
+    nodeRefs.current.forEach((nodeGroup, index) => {
+      if (!nodeGroup) return;
       const node = nodes[index];
       const target = interpolate(node.start, node.end, order);
-      target.x += Math.sin(time * 0.42 + index) * (0.05 - order * 0.02);
-      target.y += Math.cos(time * 0.34 + index * 0.7) * (0.045 - order * 0.018);
-      mesh.position.lerp(target, 0.075);
+      const drift = Math.max(0.012, 0.07 - order * 0.04);
+      target.x += Math.sin(time * 0.42 + index) * drift;
+      target.y += Math.cos(time * 0.34 + index * 0.7) * drift;
+      target.z += Math.sin(time * 0.26 + index * 1.3) * drift * 0.7;
+      nodeGroup.position.lerp(target, 0.075);
     });
   });
 
   return (
-    <group ref={group} position={[-0.24, 0, 0]} scale={0.88}>
+    <group ref={group} position={[-0.04, 0, 0]} scale={1.02}>
+      {orbitPoints.map((orbit, index) => (
+        <group
+          key={`${orbit.radiusX}-${orbit.radiusY}`}
+          rotation={[orbit.tilt, index * 0.42, orbit.tilt * 0.3]}
+        >
+          <Line
+            points={orbit.points}
+            color={palette.line}
+            transparent
+            opacity={tone === "light" ? orbit.opacity + order * 0.09 : orbit.opacity + order * 0.12}
+            lineWidth={1}
+          />
+        </group>
+      ))}
       {links.map(([a, b]) => (
-        <Line
-          key={`${a}-${b}`}
-          points={[positions[a], positions[b]]}
-          color="#f4f1ea"
-          transparent
-          opacity={0.22 + order * 0.5}
-          lineWidth={1}
-        />
+        (() => {
+          const aLabel = nodes[a].label;
+          const bLabel = nodes[b].label;
+          const isRevealed =
+            revealedLabels.includes(aLabel) && revealedLabels.includes(bLabel);
+          const isActive = aLabel === activeLabel || bLabel === activeLabel;
+          return (
+            <Line
+              key={`${a}-${b}`}
+              points={[positions[a], positions[b]]}
+              color={palette.line}
+              transparent
+              opacity={
+                isActive
+                  ? 0.42 + order * 0.34
+                  : isRevealed
+                    ? 0.16 + order * 0.18
+                    : 0.025
+              }
+              lineWidth={isActive ? 1.4 : 1}
+            />
+          );
+        })()
       ))}
       {nodes.map((node, index) => {
         const isCore = node.label === "Orchestrics";
+        const isActive = node.label === activeLabel;
+        const isRevealed = revealedLabels.includes(node.label) || isActive;
+        const nodeOpacity = isActive
+          ? 1
+          : isRevealed
+            ? tone === "light" ? 0.42 : 0.52
+            : 0.08;
         return (
-          <group key={node.label} position={positions[index]}>
+          <group
+            key={node.label}
+            ref={(nodeGroup) => {
+              nodeRefs.current[index] = nodeGroup;
+            }}
+            position={positions[index]}
+          >
             <Sphere
-              ref={(mesh) => {
-                nodeRefs.current[index] = mesh;
-              }}
-              args={[isCore ? 0.12 : 0.07, 32, 32]}
+              args={[isCore ? 0.16 : 0.075, 32, 32]}
             >
               <meshBasicMaterial
-                color={isCore ? "#F4F1EA" : "#C9C6BE"}
+                color={isCore ? palette.core : palette.node}
                 transparent
-                opacity={isCore ? 1 : 0.82}
+                opacity={nodeOpacity}
               />
             </Sphere>
-            {isCore ? (
+            {isCore || isActive ? (
               <mesh rotation={[Math.PI / 2, 0, 0]}>
-                <torusGeometry args={[0.23, 0.006, 12, 80]} />
-                <meshBasicMaterial color="#F4F1EA" transparent opacity={0.34 + order * 0.35} />
+                <torusGeometry args={[isActive ? 0.34 : 0.32, 0.006, 12, 96]} />
+                <meshBasicMaterial
+                  color={palette.core}
+                  transparent
+                  opacity={
+                    isActive
+                      ? 0.42 + order * 0.28
+                      : tone === "light" ? 0.12 + order * 0.14 : 0.18 + order * 0.22
+                  }
+                />
               </mesh>
             ) : null}
             <Html
@@ -110,10 +196,11 @@ function FieldScene({ order = 0 }: RelationalField3DProps) {
             >
               <span
                 style={{
-                  color: "rgba(244,241,234,0.64)",
+                  color: palette.label,
                   display: "block",
                   fontSize: isCore ? "10px" : "8px",
                   letterSpacing: "0.22em",
+                  opacity: isActive ? 1 : isRevealed ? 0.42 : 0,
                   textTransform: "uppercase",
                   whiteSpace: "nowrap",
                 }}
@@ -128,15 +215,25 @@ function FieldScene({ order = 0 }: RelationalField3DProps) {
   );
 }
 
-export function RelationalField3D({ order = 0 }: RelationalField3DProps) {
+export function RelationalField3D({
+  activeLabel = "Orchestrics",
+  order = 0,
+  revealedLabels = [],
+  tone = "dark",
+}: RelationalField3DProps) {
   return (
     <Canvas
-      camera={{ position: [0, 0, 6.2], fov: 48 }}
+      camera={{ position: [0, 0, 6], fov: 48 }}
       dpr={[1, 1.5]}
       gl={{ antialias: true, alpha: true, powerPreference: "high-performance" }}
     >
       <ambientLight intensity={0.8} />
-      <FieldScene order={order} />
+      <FieldScene
+        activeLabel={activeLabel}
+        order={order}
+        revealedLabels={revealedLabels}
+        tone={tone}
+      />
     </Canvas>
   );
 }

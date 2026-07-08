@@ -1,4 +1,5 @@
 export { ApproachList } from "./ApproachList";
+export { BrandStory } from "./BrandStory";
 export { EditorialFooter } from "./EditorialFooter";
 export { EditorialHeader } from "./EditorialHeader";
 export { EditorialSection } from "./EditorialSection";
@@ -9,6 +10,7 @@ export { KineticSpread } from "./KineticSpread";
 export { LargeStatement } from "./LargeStatement";
 export { PrincipleList } from "./PrincipleList";
 export { StudioStatement } from "./StudioStatement";
+export { SystemPosterSection } from "./SystemPosterSection";
 export { SystemsConstellation } from "./SystemsConstellation";
 export { SystemsField } from "./SystemsField";
 export { WorkIndex } from "./WorkIndex";
