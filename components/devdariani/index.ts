@@ -11,6 +11,7 @@ export { LargeStatement } from "./LargeStatement";
 export { PrincipleList } from "./PrincipleList";
 export { StudioStatement } from "./StudioStatement";
 export { SystemPosterSection } from "./SystemPosterSection";
+export { SystemDNAChain3D } from "./SystemDNAChain3D";
 export { SystemsConstellation } from "./SystemsConstellation";
 export { SystemsField } from "./SystemsField";
 export { WorkIndex } from "./WorkIndex";

@@ -11,8 +11,8 @@ import {
 import dynamic from "next/dynamic";
 import { useEffect, useMemo, useRef, useState } from "react";
 
-const RelationalField3D = dynamic(
-  () => import("./RelationalField3D").then((mod) => mod.RelationalField3D),
+const SystemDNAChain3D = dynamic(
+  () => import("./SystemDNAChain3D").then((mod) => mod.SystemDNAChain3D),
   { ssr: false },
 );
 
@@ -94,48 +94,12 @@ const chapters: Chapter[] = [
   },
 ];
 
-const systems = [
-  "Structure",
-  "HVAC",
-  "Electrical",
-  "BMS",
-  "Plumbing",
-  "Fire",
-  "Procurement",
-  "Commissioning",
-];
-
-const systemNodes = [
-  { label: "Structure", x: 35, y: 18, tx: -24, ty: -6, chapter: 1 },
-  { label: "HVAC", x: 65, y: 27, tx: 8, ty: -7, chapter: 2 },
-  { label: "Electrical", x: 36, y: 36, tx: -24, ty: -4, chapter: 3 },
-  { label: "BMS", x: 64, y: 45, tx: 8, ty: -4, chapter: 4, core: true },
-  { label: "Plumbing", x: 36, y: 54, tx: -24, ty: -3, chapter: 5 },
-  { label: "Fire", x: 64, y: 63, tx: 8, ty: -3, chapter: 6 },
-  { label: "Procurement", x: 35, y: 72, tx: -25, ty: -2, chapter: 8 },
-  { label: "Commissioning", x: 65, y: 81, tx: 7, ty: -2, chapter: 9 },
-];
-
-const systemLinks = [
-  [0, 1],
-  [1, 2],
-  [2, 3],
-  [3, 4],
-  [4, 5],
-  [5, 6],
-  [6, 7],
-];
-
-const chapterFocusNode = [3, 0, 1, 2, 3, 4, 5, 3, 6, 7];
-
 function useShouldRender3D() {
   const [enabled, setEnabled] = useState(false);
 
   useEffect(() => {
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const coarse = window.matchMedia("(pointer: coarse)").matches;
-    const narrow = window.innerWidth < 760;
-    setEnabled(!reduce && !coarse && !narrow);
+    setEnabled(!reduce);
   }, []);
 
   return enabled;
@@ -147,7 +111,7 @@ export function BrandStory() {
   const [soundOn, setSoundOn] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
   const [progressLabel, setProgressLabel] = useState("00%");
-  const [fieldOrder, setFieldOrder] = useState(0.08);
+  const [chainProgress, setChainProgress] = useState(0.08);
   const shouldRender3D = useShouldRender3D();
   const { scrollYProgress } = useScroll();
   const smoothProgress = useSpring(scrollYProgress, {
@@ -156,10 +120,10 @@ export function BrandStory() {
   });
   const fieldProgress = useTransform(smoothProgress, [0, 1], [0.08, 0.94]);
   const progressWidth = useTransform(smoothProgress, [0, 1], ["0%", "100%"]);
-  const fieldOpacity = useTransform(smoothProgress, [0, 0.14, 1], [0.34, 0.78, 0.58]);
+  const fieldOpacity = useTransform(smoothProgress, [0, 0.14, 1], [0.42, 0.82, 0.64]);
 
   useMotionValueEvent(fieldProgress, "change", (latest) => {
-    setFieldOrder(latest);
+    setChainProgress(latest);
   });
 
   useMotionValueEvent(smoothProgress, "change", (latest) => {
@@ -187,15 +151,6 @@ export function BrandStory() {
 
   const activeChapter = chapters[activeIndex] ?? chapters[0];
   const navChapters = useMemo(() => chapters.slice(1), []);
-  const focusedNode = chapterFocusNode[activeIndex] ?? 3;
-  const activeSystemLabel = systemNodes[focusedNode]?.label ?? "BMS";
-  const revealedSystemLabels = useMemo(
-    () =>
-      systemNodes
-        .filter((node) => started && (node.chapter ?? 0) <= activeIndex)
-        .map((node) => node.label),
-    [activeIndex, started],
-  );
 
   function beginStory() {
     setStarted(true);
@@ -211,12 +166,7 @@ export function BrandStory() {
       <div className="fixed inset-0 z-0">
         <motion.div style={{ opacity: fieldOpacity }} className="absolute inset-0">
           {shouldRender3D ? (
-            <RelationalField3D
-              activeLabel={activeSystemLabel}
-              order={fieldOrder}
-              revealedLabels={revealedSystemLabels}
-              tone="dark"
-            />
+            <SystemDNAChain3D activeIndex={activeIndex} progress={chainProgress} />
           ) : (
             <div className="h-full bg-[radial-gradient(circle_at_58%_42%,rgba(244,241,234,.13),transparent_20rem)]" />
           )}
@@ -224,7 +174,6 @@ export function BrandStory() {
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_52%,rgba(244,241,234,.08),transparent_28rem),linear-gradient(180deg,rgba(7,7,7,.66),#070707_82%)]" />
         <div className="absolute inset-0 opacity-[0.12] [background-image:linear-gradient(rgba(244,241,234,.14)_1px,transparent_1px),linear-gradient(90deg,rgba(244,241,234,.12)_1px,transparent_1px)] [background-size:100%_56px,56px_100%]" />
       </div>
-      <SystemConstellationLayer activeIndex={activeIndex} started={started} />
 
       <header className="section-shell fixed left-0 right-0 top-0 z-40">
         <nav className="flex items-center justify-between border-b border-ivory/14 py-5 text-[0.66rem] uppercase tracking-[0.24em] text-ivory/58">
@@ -321,7 +270,6 @@ export function BrandStory() {
         Scroll to continue
       </div>
 
-      <FloatingSystems activeIndex={activeIndex} started={started} />
     </main>
   );
 }
@@ -394,164 +342,5 @@ function StoryChapter({
         ) : null}
       </motion.div>
     </section>
-  );
-}
-
-function SystemConstellationLayer({
-  activeIndex,
-  started,
-}: {
-  activeIndex: number;
-  started: boolean;
-}) {
-  const phase = Math.max(0, activeIndex - 1);
-  const focusedNode = chapterFocusNode[activeIndex] ?? 3;
-  const completedLinkCount = Math.max(0, Math.min(systemLinks.length, activeIndex - 1));
-
-  return (
-    <motion.div
-      aria-hidden="true"
-      animate={{ opacity: started ? 1 : 0.42 }}
-      transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
-      className="pointer-events-none fixed inset-0 z-[2] overflow-hidden"
-    >
-      <svg className="absolute inset-0 h-full w-full" viewBox="0 0 100 100" preserveAspectRatio="none">
-        <defs>
-          <radialGradient id="system-node-glow">
-            <stop offset="0%" stopColor="rgba(244,241,234,0.7)" />
-            <stop offset="100%" stopColor="rgba(244,241,234,0)" />
-          </radialGradient>
-        </defs>
-        {systemLinks.map(([from, to], index) => {
-          const a = systemNodes[from];
-          const b = systemNodes[to];
-          const isActiveSegment =
-            from === focusedNode || to === focusedNode || index === completedLinkCount - 1;
-          const isCompleted = started && index < completedLinkCount;
-          return (
-            <motion.line
-              key={`${a.label}-${b.label}`}
-              x1={a.x}
-              y1={a.y}
-              x2={b.x}
-              y2={b.y}
-              stroke="rgba(244,241,234,0.55)"
-              strokeWidth={isActiveSegment ? "0.14" : "0.08"}
-              vectorEffect="non-scaling-stroke"
-              initial={{ pathLength: 0, opacity: 0 }}
-              animate={{
-                pathLength: isCompleted ? 1 : 0,
-                opacity: isCompleted ? (isActiveSegment ? 0.82 : 0.28) : 0,
-              }}
-              transition={{ duration: 1.1, delay: index * 0.035, ease: [0.22, 1, 0.36, 1] }}
-            />
-          );
-        })}
-        {systemNodes.map((node, index) => {
-          const distanceFromFocus = Math.abs(index - focusedNode);
-          const isFocused = index === focusedNode;
-          const isPast = started && (node.chapter ?? 0) < activeIndex;
-          const isRevealed = started && (node.chapter ?? 0) <= activeIndex;
-          const isNearby = distanceFromFocus === 1;
-          const pulse = isFocused ? 0.92 : isPast ? 0.42 : 0.2;
-          return (
-            <motion.g
-              key={node.label}
-              animate={{
-                x: Math.sin(phase * 0.52 + index * 1.4) * (node.core ? 1.4 : 2.8),
-                y: Math.cos(phase * 0.48 + index * 1.1) * (node.core ? 1.2 : 2.4),
-              }}
-              transition={{ duration: 1.25, ease: [0.22, 1, 0.36, 1] }}
-            >
-              <circle
-                cx={node.x}
-                cy={node.y}
-                r={isFocused ? 3.2 : node.core ? 2.7 : 1.9}
-                fill="url(#system-node-glow)"
-                opacity={isFocused ? 0.54 : isPast ? 0.14 : isNearby && isRevealed ? 0.12 : 0}
-              />
-              <motion.circle
-                cx={node.x}
-                cy={node.y}
-                r={isFocused ? 0.58 : node.core ? 0.46 : 0.28}
-                fill="rgba(244,241,234,0.88)"
-                animate={{
-                  opacity: isRevealed ? [pulse, pulse + 0.16, pulse] : 0,
-                  scale: isRevealed ? [1, 1.16, 1] : 0.8,
-                }}
-                transition={{ duration: 3.2 + index * 0.08, repeat: Infinity, ease: "easeInOut" }}
-              />
-            </motion.g>
-          );
-        })}
-      </svg>
-
-      {systemNodes.map((node, index) => (
-        <motion.span
-          key={node.label}
-          animate={{
-            x: node.tx + Math.sin(phase * 0.55 + index) * 12,
-            y: node.ty + Math.cos(phase * 0.5 + index) * 10,
-            opacity:
-              index === focusedNode
-                ? 0.86
-                : started && (node.chapter ?? 0) < activeIndex
-                  ? 0.28
-                  : 0,
-          }}
-          transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1] }}
-          className={`absolute uppercase tracking-[0.22em] ${
-            node.core
-              ? "text-[0.62rem] text-ivory/70 md:text-[clamp(0.72rem,1.4vw,1.2rem)]"
-              : "text-[0.48rem] text-ivory/48 md:text-[clamp(0.58rem,1vw,0.78rem)]"
-          }`}
-          style={{
-            left: `${node.x}%`,
-            top: `${node.y}%`,
-          }}
-        >
-          {node.label}
-        </motion.span>
-      ))}
-    </motion.div>
-  );
-}
-
-function FloatingSystems({
-  activeIndex,
-  started,
-}: {
-  activeIndex: number;
-  started: boolean;
-}) {
-  const visible = started;
-  const focusedNode = chapterFocusNode[activeIndex] ?? 3;
-
-  return (
-    <motion.div
-      aria-hidden="true"
-      animate={{ opacity: visible ? 1 : 0 }}
-      transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-      className="pointer-events-none fixed inset-0 z-[1] hidden overflow-hidden md:block"
-    >
-      {systems.map((system, index) => (
-        <motion.span
-          key={system}
-          animate={{
-            x: visible ? Math.sin(index * 1.6 + activeIndex) * 28 : 0,
-            y: visible ? Math.cos(index * 1.1 + activeIndex) * 24 : 0,
-            opacity: index === focusedNode ? 0.11 : 0.025,
-          }}
-          transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1] }}
-          className="absolute text-[clamp(1.8rem,4.8vw,6rem)] font-light leading-none text-ivory"
-          style={{
-            left: `${8 + (index % 4) * 24}%`,
-            top: `${18 + Math.floor(index / 4) * 48 + (index % 2) * 7}%`,
-          }}
-        >
-          {system}
-        </motion.span>
-      ))}
-    </motion.div>
   );
 }
