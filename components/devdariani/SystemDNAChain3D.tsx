@@ -1,6 +1,6 @@
 "use client";
 
-import { Line, Sphere, Text } from "@react-three/drei";
+import { Line, PerspectiveCamera, Sphere, Text } from "@react-three/drei";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
@@ -154,16 +154,20 @@ function DNAField({
             />
 
             <Sphere args={[0.035, 18, 18]} position={point.strandA}>
-              <meshBasicMaterial
+              <meshStandardMaterial
                 color={strandMaterial.graphite}
+                metalness={0.18}
                 opacity={isRevealed ? 0.42 : 0.1}
+                roughness={0.35}
                 transparent
               />
             </Sphere>
             <Sphere args={[0.035, 18, 18]} position={point.strandB}>
-              <meshBasicMaterial
+              <meshStandardMaterial
                 color={strandMaterial.graphite}
+                metalness={0.18}
                 opacity={isRevealed ? 0.42 : 0.1}
+                roughness={0.35}
                 transparent
               />
             </Sphere>
@@ -171,9 +175,11 @@ function DNAField({
               args={[0.075 * activeScale, 28, 28]}
               position={point.midpoint}
             >
-              <meshBasicMaterial
+              <meshStandardMaterial
                 color={isActive ? strandMaterial.ivory : strandMaterial.graphite}
+                metalness={isActive ? 0.24 : 0.14}
                 opacity={nodeOpacity}
+                roughness={0.32}
                 transparent
               />
             </Sphere>
@@ -213,11 +219,13 @@ export function SystemDNAChain3D({
 
   return (
     <Canvas
-      camera={{ position: [0, 0, isMobile ? 6.4 : 5.8], fov: isMobile ? 44 : 42 }}
       dpr={[1, 1.5]}
       gl={{ antialias: true, alpha: true, powerPreference: "high-performance" }}
     >
-      <ambientLight intensity={0.95} />
+      <PerspectiveCamera makeDefault position={[0, 0, isMobile ? 6.4 : 5.8]} fov={isMobile ? 44 : 42} />
+      <ambientLight intensity={0.68} />
+      <directionalLight intensity={1.15} position={[3, 4, 5]} />
+      <pointLight intensity={0.5} position={[-4, -2, 3]} />
       <DNAField activeIndex={activeIndex} isMobile={isMobile} progress={progress} />
     </Canvas>
   );
