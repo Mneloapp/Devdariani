@@ -222,3 +222,5 @@ export function SystemDNAChain3D({
     </Canvas>
   );
 }
+
+export default SystemDNAChain3D;

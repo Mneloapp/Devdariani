@@ -224,7 +224,7 @@ export function BrandStory() {
             onClick={beginStory}
             initial={{ opacity: 1 }}
             exit={{ opacity: 0, transition: { duration: 0.7, ease: [0.22, 1, 0.36, 1] } }}
-            className="fixed inset-0 z-50 cursor-pointer bg-dark text-left text-ivory"
+            className="fixed inset-0 z-50 cursor-pointer bg-dark/72 text-left text-ivory backdrop-blur-[1px]"
           >
             <span className="section-shell flex min-h-screen flex-col justify-between pb-14 pt-28 md:pb-20 md:pt-36">
               <span className="text-[0.66rem] uppercase tracking-[0.28em] text-ivory/48">
@@ -247,7 +247,7 @@ export function BrandStory() {
         ) : null}
       </AnimatePresence>
 
-      <div className="relative z-10">
+      <div className={`relative z-10 ${started ? "" : "opacity-0"}`}>
         {chapters.map((chapter, index) => (
           <StoryChapter
             key={chapter.id}
