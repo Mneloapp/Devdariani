@@ -84,6 +84,20 @@ a {
   color: var(--ivory);
 }
 
+.devdariani-v2 {
+  --bg: #050607;
+  --bg-soft: #0a0b0d;
+  --surface: #111316;
+  --text: #e9e6df;
+  --text-muted: #96938d;
+  --line: rgba(233, 230, 223, 0.15);
+  --line-strong: rgba(233, 230, 223, 0.3);
+  --metal-warm: #a99478;
+  --core: #e7e2d8;
+  background: var(--bg);
+  color: var(--text);
+}
+
 @media (max-width: 760px) {
   .section-shell {
     padding-left: 1.25rem;
