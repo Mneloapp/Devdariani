@@ -24,7 +24,7 @@ export type ShaftJourneyCanvasProps = {
   waveLabelRef: RefObject<HTMLDivElement | null>;
 };
 
-export type ShaftTheme = "dark" | "light";
+export type ShaftTheme = "bronze" | "dark" | "light" | "mineral";
 
 type OpacityMaterial = THREE.Material & {
   depthWrite: boolean;
@@ -45,6 +45,23 @@ type TracerRecord = {
 };
 
 const SHAFT_SCENE_PALETTES = {
+  bronze: {
+    ambient: "#F2E8DD",
+    ambientIntensity: 0.71,
+    background: "#27231F",
+    exposure: 0.96,
+    fill: "#7C8991",
+    fillIntensity: 0.7,
+    grid: "#93867B",
+    gridOpacity: 0.16,
+    key: "#FFF0DF",
+    keyIntensity: 2.18,
+    structure: "#BEB3A7",
+    structureOpacity: 0.32,
+    tracer: "#F9ECDE",
+    wall: "#342E28",
+    wallOpacity: 0.3,
+  },
   dark: {
     ambient: "#F0ECE4",
     ambientIntensity: 0.76,
@@ -78,6 +95,23 @@ const SHAFT_SCENE_PALETTES = {
     tracer: "#FFFFFF",
     wall: "#E5E4DF",
     wallOpacity: 0.2,
+  },
+  mineral: {
+    ambient: "#F1ECE3",
+    ambientIntensity: 0.74,
+    background: "#20231F",
+    exposure: 0.97,
+    fill: "#82918B",
+    fillIntensity: 0.72,
+    grid: "#89938C",
+    gridOpacity: 0.17,
+    key: "#FFF6EA",
+    keyIntensity: 2.24,
+    structure: "#BCC2B9",
+    structureOpacity: 0.33,
+    tracer: "#F8F1E7",
+    wall: "#2D312B",
+    wallOpacity: 0.3,
   },
 } as const;
 

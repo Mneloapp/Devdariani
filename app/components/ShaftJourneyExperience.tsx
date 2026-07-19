@@ -80,9 +80,15 @@ function getStageScrollTarget(stage: (typeof shaftStages)[number]) {
 }
 
 function readShaftTheme(): ShaftTheme {
-  return new URLSearchParams(window.location.search).get("theme") === "light"
-    ? "light"
-    : "dark";
+  const requestedTheme = new URLSearchParams(window.location.search).get("theme");
+  if (
+    requestedTheme === "bronze" ||
+    requestedTheme === "light" ||
+    requestedTheme === "mineral"
+  ) {
+    return requestedTheme;
+  }
+  return "dark";
 }
 
 function readServerShaftTheme(): ShaftTheme {
@@ -332,6 +338,7 @@ export function ShaftJourneyExperience() {
       className="shaft-journey"
       data-stage={activeStage.id as ShaftStageId}
       data-theme={theme}
+      data-tone={theme === "light" ? "light" : "dark"}
     >
       <section
         aria-label="Inside the Whole — a scroll journey through an engineered building core"
