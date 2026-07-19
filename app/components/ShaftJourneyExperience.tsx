@@ -55,6 +55,62 @@ const systemCallouts: readonly {
   },
 ] as const;
 
+const portalSystemRoutes: readonly {
+  draw: readonly [number, number];
+  end: readonly [number, number];
+  id: ShaftSystemId;
+  labelAlign: "left" | "right";
+  number: string;
+  path: string;
+  start: readonly [number, number];
+}[] = [
+  {
+    draw: [0.833, 0.858],
+    end: [352, 352],
+    id: "hvac",
+    labelAlign: "right",
+    number: "01",
+    path: "M0 170H215V352H352",
+    start: [0, 170],
+  },
+  {
+    draw: [0.854, 0.879],
+    end: [648, 378],
+    id: "electrical",
+    labelAlign: "left",
+    number: "02",
+    path: "M1000 245H790V378H648",
+    start: [1000, 245],
+  },
+  {
+    draw: [0.875, 0.9],
+    end: [352, 632],
+    id: "plumbing",
+    labelAlign: "right",
+    number: "03",
+    path: "M0 735H238V632H352",
+    start: [0, 735],
+  },
+  {
+    draw: [0.896, 0.921],
+    end: [648, 664],
+    id: "fire",
+    labelAlign: "left",
+    number: "04",
+    path: "M1000 805H755V664H648",
+    start: [1000, 805],
+  },
+  {
+    draw: [0.917, 0.942],
+    end: [500, 320],
+    id: "bms",
+    labelAlign: "right",
+    number: "05",
+    path: "M500 0V320",
+    start: [500, 0],
+  },
+] as const;
+
 function clamp01(value: number) {
   return Math.min(1, Math.max(0, value));
 }
@@ -140,6 +196,11 @@ export function ShaftJourneyExperience() {
   const soundToggleRef = useRef<HTMLButtonElement>(null);
   const stageRailRef = useRef<HTMLElement>(null);
   const waveLabelRef = useRef<HTMLDivElement>(null);
+  const portalRef = useRef<HTMLDivElement>(null);
+  const portalPathRefs = useRef<Partial<Record<ShaftSystemId, SVGPathElement | null>>>({});
+  const portalPathLengthsRef = useRef<Partial<Record<ShaftSystemId, number>>>({});
+  const portalMarkerRefs = useRef<Partial<Record<ShaftSystemId, SVGGElement | null>>>({});
+  const portalCalloutRefs = useRef<Partial<Record<ShaftSystemId, HTMLDivElement | null>>>({});
   const interfaceHiddenRef = useRef(false);
   const [activeIndex, setActiveIndex] = useState(0);
   const [interfaceHidden, setInterfaceHidden] = useState(false);
@@ -234,46 +295,38 @@ export function ShaftJourneyExperience() {
 
       const stage = shaftStages[nextIndex];
       const story = storyRef.current;
+      const compactPortal = window.innerWidth <= 900;
       /*
        * After BMS, the five system traces resolve into one precise aperture. The Projects plane
        * then expands through that aperture, so the handoff stays continuous without inserting a
        * building render, a city scene, or a separate call-to-action screen.
        */
-      const portalEnter = reducedMotion ? 0 : smoothstep(0.825, 0.885, progress);
-      const portalResolve = reducedMotion ? 1 : smoothstep(0.89, 0.965, progress);
-      const portalExit = reducedMotion ? 1 : smoothstep(0.955, 0.997, progress);
-      const interfaceExit = reducedMotion ? 0 : smoothstep(0.82, 0.895, progress);
-      const handoff = reducedMotion ? 1 : smoothstep(0.9, 0.997, progress);
+      const portalEnter = reducedMotion ? 0 : smoothstep(0.815, 0.848, progress);
+      const portalResolve = reducedMotion
+        ? 1
+        : compactPortal
+          ? smoothstep(0.815, 0.875, progress)
+          : smoothstep(0.885, 0.972, progress);
+      const portalExit = reducedMotion ? 1 : smoothstep(0.977, 0.999, progress);
+      const interfaceExit = reducedMotion ? 0 : smoothstep(0.82, 0.846, progress);
+      const handoff = reducedMotion ? 1 : smoothstep(0.964, 0.999, progress);
       const portalOpacity = portalEnter * (1 - portalExit);
-      const canvasOpacity = reducedMotion ? 0 : 1 - smoothstep(0.92, 0.988, progress);
+      const canvasOpacity = reducedMotion ? 0 : 1 - smoothstep(0.82, 0.846, progress);
+
+      const portalDrawProgress = Object.fromEntries(
+        portalSystemRoutes.map(({ draw: [start, end], id }) => [
+          id,
+          reducedMotion ? 1 : smoothstep(start, end, progress),
+        ]),
+      ) as Record<ShaftSystemId, number>;
 
       projectsHandoffRef.current = handoff;
       story?.style.setProperty("--shaft-interface-opacity", (1 - interfaceExit).toFixed(3));
       story?.style.setProperty("--shaft-canvas-opacity", canvasOpacity.toFixed(3));
       story?.style.setProperty("--shaft-portal-opacity", portalOpacity.toFixed(3));
       story?.style.setProperty(
-        "--shaft-portal-draw-hvac",
-        (reducedMotion ? 1 : smoothstep(0.838, 0.887, progress)).toFixed(4),
-      );
-      story?.style.setProperty(
-        "--shaft-portal-draw-electrical",
-        (reducedMotion ? 1 : smoothstep(0.849, 0.899, progress)).toFixed(4),
-      );
-      story?.style.setProperty(
-        "--shaft-portal-draw-plumbing",
-        (reducedMotion ? 1 : smoothstep(0.86, 0.911, progress)).toFixed(4),
-      );
-      story?.style.setProperty(
-        "--shaft-portal-draw-fire",
-        (reducedMotion ? 1 : smoothstep(0.871, 0.924, progress)).toFixed(4),
-      );
-      story?.style.setProperty(
-        "--shaft-portal-draw-bms",
-        (reducedMotion ? 1 : smoothstep(0.882, 0.937, progress)).toFixed(4),
-      );
-      story?.style.setProperty(
         "--shaft-portal-aperture-draw",
-        (reducedMotion ? 1 : smoothstep(0.892, 0.952, progress)).toFixed(4),
+        (reducedMotion ? 1 : smoothstep(0.936, 0.968, progress)).toFixed(4),
       );
       story?.style.setProperty(
         "--shaft-portal-scale",
@@ -304,6 +357,68 @@ export function ShaftJourneyExperience() {
         "--shaft-portal-meta-shift",
         `${((1 - portalResolve) * 0.7).toFixed(3)}rem`,
       );
+      const portalBounds = portalRef.current?.getBoundingClientRect();
+      portalSystemRoutes.forEach(({ id, labelAlign }) => {
+        const draw = portalDrawProgress[id];
+        story?.style.setProperty(`--shaft-portal-draw-${id}`, draw.toFixed(4));
+        story?.style.setProperty(
+          `--shaft-portal-node-${id}`,
+          smoothstep(0.86, 1, draw).toFixed(4),
+        );
+
+        const path = portalPathRefs.current[id];
+        const marker = portalMarkerRefs.current[id];
+        const callout = portalCalloutRefs.current[id];
+        if (!path || !marker) return;
+
+        const pathLength =
+          portalPathLengthsRef.current[id] ?? path.getTotalLength();
+        portalPathLengthsRef.current[id] = pathLength;
+        const point = path.getPointAtLength(pathLength * draw);
+        marker.setAttribute("transform", `translate(${point.x.toFixed(2)} ${point.y.toFixed(2)})`);
+
+        const markerOpacity =
+          (reducedMotion ? 0 : smoothstep(0.02, 0.1, draw)) *
+          (1 - smoothstep(0.86, 1, draw));
+        const labelEntry = compactPortal
+          ? smoothstep(0.28, 0.42, draw)
+          : smoothstep(0.06, 0.16, draw);
+        const labelExit = compactPortal
+          ? smoothstep(0.84, 0.97, draw)
+          : smoothstep(0.68, 0.91, draw);
+        const labelOpacity =
+          (reducedMotion ? 0 : labelEntry) * (1 - labelExit);
+        if (!callout || !portalBounds) {
+          marker.style.setProperty("--shaft-portal-marker-opacity", markerOpacity.toFixed(3));
+          return;
+        }
+        const markerBounds = marker.getBoundingClientRect();
+        const localX = markerBounds.left + markerBounds.width / 2 - portalBounds.left;
+        const localY = markerBounds.top + markerBounds.height / 2 - portalBounds.top;
+        const calloutWidth = compactPortal ? 184 : 248;
+        let align = labelAlign;
+        if (localX + calloutWidth + 32 > portalBounds.width) align = "left";
+        if (localX - calloutWidth - 32 < 0) align = "right";
+        const markerClearance = compactPortal ? 3 : 4;
+        const markerInView =
+          markerBounds.left >= portalBounds.left + markerClearance &&
+          markerBounds.right <= portalBounds.right - markerClearance &&
+          markerBounds.top >= portalBounds.top + markerClearance &&
+          markerBounds.bottom <= portalBounds.bottom - markerClearance;
+        marker.style.setProperty(
+          "--shaft-portal-marker-opacity",
+          (markerInView ? markerOpacity : 0).toFixed(3),
+        );
+        const clampedY = Math.min(portalBounds.height - 52, Math.max(52, localY));
+        callout.dataset.align = align;
+        callout.dataset.visible = String(markerInView && labelOpacity > 0.02);
+        callout.style.setProperty("--shaft-portal-callout-x", `${localX.toFixed(2)}px`);
+        callout.style.setProperty("--shaft-portal-callout-y", `${clampedY.toFixed(2)}px`);
+        callout.style.setProperty(
+          "--shaft-portal-callout-opacity",
+          (markerInView ? labelOpacity : 0).toFixed(3),
+        );
+      });
       story?.style.setProperty(
         "--shaft-vignette-opacity",
         ((1 - portalEnter * 0.82) * (1 - handoff * 0.8)).toFixed(3),
@@ -384,7 +499,7 @@ export function ShaftJourneyExperience() {
             soundFrameRef={shaftSoundFrameRef}
             waveLabelRef={waveLabelRef}
           />
-          <div aria-hidden="true" className="shaft-orchestrics-portal">
+          <div aria-hidden="true" className="shaft-orchestrics-portal" ref={portalRef}>
             <div className="shaft-orchestrics-portal__plane">
               <svg
                 className="shaft-orchestrics-portal__geometry"
@@ -396,18 +511,45 @@ export function ShaftJourneyExperience() {
                   <path d="M0 180H1000M0 340H1000M0 500H1000M0 660H1000M0 820H1000" />
                 </g>
                 <g className="shaft-orchestrics-portal__systems">
-                  <path className="is-hvac" d="M0 170H215V352H352" pathLength="1" />
-                  <path className="is-electrical" d="M1000 245H790V378H648" pathLength="1" />
-                  <path className="is-plumbing" d="M0 735H238V632H352" pathLength="1" />
-                  <path className="is-fire" d="M1000 805H755V664H648" pathLength="1" />
-                  <path className="is-bms" d="M500 0V320" pathLength="1" />
+                  {portalSystemRoutes.map((route) => (
+                    <path
+                      className={`is-${route.id}`}
+                      d={route.path}
+                      data-portal-path={route.id}
+                      key={route.id}
+                      pathLength="1"
+                      ref={(node) => {
+                        portalPathRefs.current[route.id] = node;
+                      }}
+                    />
+                  ))}
+                </g>
+                <g className="shaft-orchestrics-portal__markers">
+                  {portalSystemRoutes.map((route) => (
+                    <g
+                      className={`shaft-orchestrics-portal__marker is-${route.id}`}
+                      data-portal-marker={route.id}
+                      key={route.id}
+                      ref={(node) => {
+                        portalMarkerRefs.current[route.id] = node;
+                      }}
+                      transform={`translate(${route.start[0]} ${route.start[1]})`}
+                    >
+                      <circle className="shaft-orchestrics-portal__marker-halo" r="15" />
+                      <circle className="shaft-orchestrics-portal__marker-core" r="6" />
+                    </g>
+                  ))}
                 </g>
                 <g className="shaft-orchestrics-portal__nodes">
-                  <circle className="is-hvac" cx="352" cy="352" r="7" />
-                  <circle className="is-electrical" cx="648" cy="378" r="7" />
-                  <circle className="is-plumbing" cx="352" cy="632" r="7" />
-                  <circle className="is-fire" cx="648" cy="664" r="7" />
-                  <circle className="is-bms" cx="500" cy="320" r="7" />
+                  {portalSystemRoutes.map((route) => (
+                    <circle
+                      className={`is-${route.id}`}
+                      cx={route.end[0]}
+                      cy={route.end[1]}
+                      key={route.id}
+                      r="7"
+                    />
+                  ))}
                 </g>
                 <g className="shaft-orchestrics-portal__aperture">
                   <rect height="600" pathLength="1" width="520" x="240" y="200" />
@@ -421,6 +563,27 @@ export function ShaftJourneyExperience() {
                 <strong>Orchestrics™</strong>
               </div>
             </div>
+            {portalSystemRoutes.map((route) => {
+              const callout = systemCallouts.find(({ id }) => id === route.id);
+              if (!callout) return null;
+              return (
+                <div
+                  className={`shaft-portal-callout is-${route.id}`}
+                  data-align={route.labelAlign}
+                  data-portal-callout={route.id}
+                  data-visible="false"
+                  key={route.id}
+                  ref={(node) => {
+                    portalCalloutRefs.current[route.id] = node;
+                  }}
+                >
+                  <strong>
+                    {route.number} / {callout.label}
+                  </strong>
+                  <small>{callout.descriptor}</small>
+                </div>
+              );
+            })}
           </div>
           <div aria-hidden="true" className="shaft-vignette" />
 

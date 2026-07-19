@@ -1663,6 +1663,11 @@ a:focus-visible {
   --shaft-portal-draw-plumbing: 0;
   --shaft-portal-draw-fire: 0;
   --shaft-portal-draw-bms: 0;
+  --shaft-portal-node-hvac: 0;
+  --shaft-portal-node-electrical: 0;
+  --shaft-portal-node-plumbing: 0;
+  --shaft-portal-node-fire: 0;
+  --shaft-portal-node-bms: 0;
   --shaft-portal-aperture-draw: 0;
   --shaft-portal-scale: 0.62;
   --shaft-portal-pitch: 58deg;
@@ -1814,6 +1819,50 @@ a:focus-visible {
   stroke: #7469a3;
 }
 
+.shaft-orchestrics-portal__marker {
+  --shaft-portal-marker-opacity: 0;
+  opacity: var(--shaft-portal-marker-opacity);
+  will-change: opacity;
+}
+
+.shaft-orchestrics-portal__marker.is-hvac {
+  color: #79b6cf;
+}
+
+.shaft-orchestrics-portal__marker.is-electrical {
+  color: #c39843;
+}
+
+.shaft-orchestrics-portal__marker.is-plumbing {
+  color: #258fa8;
+}
+
+.shaft-orchestrics-portal__marker.is-fire {
+  color: #b84842;
+}
+
+.shaft-orchestrics-portal__marker.is-bms {
+  color: #7469a3;
+}
+
+.shaft-orchestrics-portal__marker-halo,
+.shaft-orchestrics-portal__marker-core {
+  vector-effect: non-scaling-stroke;
+}
+
+.shaft-orchestrics-portal__marker-halo {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.2;
+  opacity: 0.34;
+}
+
+.shaft-orchestrics-portal__marker-core {
+  fill: currentColor;
+  stroke: var(--shaft-paper);
+  stroke-width: 2.4;
+}
+
 .shaft-orchestrics-portal__nodes circle {
   --shaft-portal-node-opacity: 0;
   opacity: var(--shaft-portal-node-opacity);
@@ -1823,27 +1872,27 @@ a:focus-visible {
 }
 
 .shaft-orchestrics-portal__nodes .is-hvac {
-  --shaft-portal-node-opacity: var(--shaft-portal-draw-hvac);
+  --shaft-portal-node-opacity: var(--shaft-portal-node-hvac);
   fill: #79b6cf;
 }
 
 .shaft-orchestrics-portal__nodes .is-electrical {
-  --shaft-portal-node-opacity: var(--shaft-portal-draw-electrical);
+  --shaft-portal-node-opacity: var(--shaft-portal-node-electrical);
   fill: #c39843;
 }
 
 .shaft-orchestrics-portal__nodes .is-plumbing {
-  --shaft-portal-node-opacity: var(--shaft-portal-draw-plumbing);
+  --shaft-portal-node-opacity: var(--shaft-portal-node-plumbing);
   fill: #258fa8;
 }
 
 .shaft-orchestrics-portal__nodes .is-fire {
-  --shaft-portal-node-opacity: var(--shaft-portal-draw-fire);
+  --shaft-portal-node-opacity: var(--shaft-portal-node-fire);
   fill: #b84842;
 }
 
 .shaft-orchestrics-portal__nodes .is-bms {
-  --shaft-portal-node-opacity: var(--shaft-portal-draw-bms);
+  --shaft-portal-node-opacity: var(--shaft-portal-node-bms);
   fill: #7469a3;
 }
 
@@ -1879,6 +1928,102 @@ a:focus-visible {
 .shaft-orchestrics-portal__meta strong {
   font-variation-settings: "wght" 320;
   font-weight: 320;
+}
+
+.shaft-portal-callout {
+  --shaft-portal-callout-accent: var(--shaft-graphite);
+  --shaft-portal-callout-opacity: 0;
+  --shaft-portal-callout-x: -300px;
+  --shaft-portal-callout-y: -300px;
+  position: absolute;
+  z-index: 3;
+  top: 0;
+  left: 0;
+  display: grid;
+  gap: 0.28rem;
+  min-width: 13.75rem;
+  padding-left: 1.45rem;
+  color: rgba(17, 18, 20, 0.94);
+  font-family: var(--orchestrics-display);
+  opacity: var(--shaft-portal-callout-opacity);
+  pointer-events: none;
+  text-shadow:
+    0 0 8px rgba(244, 243, 239, 1),
+    0 0 18px rgba(244, 243, 239, 0.96);
+  transform: translate3d(
+      var(--shaft-portal-callout-x),
+      var(--shaft-portal-callout-y),
+      0
+    )
+    translate(0.85rem, -50%);
+  will-change: opacity, transform;
+}
+
+.shaft-portal-callout::before {
+  content: "";
+  position: absolute;
+  top: 0.48rem;
+  left: 0;
+  width: 1rem;
+  height: 1px;
+  background: var(--shaft-portal-callout-accent);
+}
+
+.shaft-portal-callout[data-align="left"] {
+  padding-right: 1.45rem;
+  padding-left: 0;
+  text-align: right;
+  transform: translate3d(
+      var(--shaft-portal-callout-x),
+      var(--shaft-portal-callout-y),
+      0
+    )
+    translate(calc(-100% - 0.85rem), -50%);
+}
+
+.shaft-portal-callout[data-align="left"]::before {
+  right: 0;
+  left: auto;
+}
+
+.shaft-portal-callout strong {
+  font-size: 0.64rem;
+  font-variation-settings: "wght" 330;
+  font-weight: 330;
+  letter-spacing: 0.16em;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.shaft-portal-callout small {
+  color: rgba(17, 18, 20, 0.64);
+  font-size: 0.49rem;
+  font-variation-settings: "wght" 300;
+  font-weight: 300;
+  letter-spacing: 0.13em;
+  line-height: 1.25;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.shaft-portal-callout.is-hvac {
+  --shaft-portal-callout-accent: #79b6cf;
+}
+
+.shaft-portal-callout.is-electrical {
+  --shaft-portal-callout-accent: #c39843;
+}
+
+.shaft-portal-callout.is-plumbing {
+  --shaft-portal-callout-accent: #258fa8;
+}
+
+.shaft-portal-callout.is-fire {
+  --shaft-portal-callout-accent: #b84842;
+}
+
+.shaft-portal-callout.is-bms {
+  --shaft-portal-callout-accent: #7469a3;
 }
 
 .shaft-vignette {
@@ -2381,7 +2526,7 @@ a:focus-visible {
   left: 0;
   display: block;
   height: 1px;
-  background: rgba(17, 18, 20, 0.14);
+  background: rgba(17, 18, 20, 0.3);
 }
 
 .shaft-progress > i > span {
@@ -2519,7 +2664,11 @@ a:focus-visible {
   }
 
   .shaft-orchestrics-portal__plane {
+    position: absolute;
+    top: 50%;
+    left: 50%;
     width: min(138vw, 46rem);
+    translate: -50% -50%;
   }
 
   .shaft-orchestrics-portal__meta {
@@ -2530,6 +2679,22 @@ a:focus-visible {
     width: 31%;
     font-size: 0.38rem;
     text-align: center;
+  }
+
+  .shaft-portal-callout {
+    gap: 0.24rem;
+    min-width: 10.75rem;
+    max-width: calc(100vw - 3rem);
+  }
+
+  .shaft-portal-callout strong {
+    font-size: 0.6rem;
+  }
+
+  .shaft-portal-callout small {
+    overflow: hidden;
+    font-size: 0.46rem;
+    text-overflow: ellipsis;
   }
 
   .shaft-chapter-mark {
