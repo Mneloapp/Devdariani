@@ -1636,16 +1636,34 @@ a:focus-visible {
 }
 
 /* Shaft Journey study — isolated from the approved Spatial Systems Weave. */
+html:has(.shaft-journey[data-theme="dark"]),
+body:has(.shaft-journey[data-theme="dark"]) {
+  background: #1b2024;
+}
+
 .shaft-journey {
+  --shaft-paper: #1b2024;
+  --shaft-paper-deep: #242a2f;
+  --shaft-ink: #f0ece4;
+  --shaft-graphite: #c7c4bd;
+  --shaft-steel: #9ca4a7;
+  --shaft-ink-rgb: 240, 236, 228;
+  --shaft-paper-rgb: 27, 32, 36;
+  min-height: 100svh;
+  overflow-x: clip;
+  background: var(--shaft-paper);
+  color: var(--shaft-ink);
+  color-scheme: dark;
+}
+
+.shaft-journey[data-theme="light"] {
   --shaft-paper: #f4f3ef;
   --shaft-paper-deep: #e7e5df;
   --shaft-ink: #111214;
   --shaft-graphite: #33363a;
   --shaft-steel: #55585b;
-  min-height: 100svh;
-  overflow-x: clip;
-  background: var(--shaft-paper);
-  color: var(--shaft-ink);
+  --shaft-ink-rgb: 17, 18, 20;
+  --shaft-paper-rgb: 244, 243, 239;
   color-scheme: light;
 }
 
@@ -2309,6 +2327,189 @@ a:focus-visible {
   color: rgba(17, 18, 20, 0.68);
 }
 
+/* Dark graphite study. The approved light study remains available through
+   ?theme=light; this palette reverses the tonal hierarchy without using black. */
+.shaft-journey[data-theme="dark"] .shaft-canvas[data-failed="true"] {
+  background:
+    linear-gradient(
+      90deg,
+      transparent 31%,
+      rgba(var(--shaft-ink-rgb), 0.1) 31.1%,
+      transparent 31.3%
+    ),
+    linear-gradient(
+      90deg,
+      transparent 67%,
+      rgba(var(--shaft-ink-rgb), 0.1) 67.1%,
+      transparent 67.3%
+    ),
+    repeating-linear-gradient(
+      0deg,
+      transparent 0,
+      transparent 8.8vh,
+      rgba(var(--shaft-ink-rgb), 0.11) 9vh,
+      transparent 9.2vh
+    ),
+    radial-gradient(circle at 50% 86%, rgba(var(--shaft-ink-rgb), 0.08), transparent 42%),
+    var(--shaft-paper);
+}
+
+.shaft-journey[data-theme="dark"] .shaft-vignette {
+  background:
+    linear-gradient(
+      90deg,
+      rgba(var(--shaft-paper-rgb), 0.99) 0%,
+      rgba(var(--shaft-paper-rgb), 0.93) 22%,
+      rgba(var(--shaft-paper-rgb), 0.52) 39%,
+      rgba(var(--shaft-paper-rgb), 0.04) 62%,
+      rgba(var(--shaft-paper-rgb), 0.18) 100%
+    ),
+    linear-gradient(
+      0deg,
+      rgba(var(--shaft-paper-rgb), 0.48),
+      transparent 18%,
+      transparent 78%,
+      rgba(var(--shaft-paper-rgb), 0.3)
+    );
+}
+
+.shaft-journey[data-theme="dark"] .shaft-chapter-mark,
+.shaft-journey[data-theme="dark"] .shaft-identity-state > span,
+.shaft-journey[data-theme="dark"] .shaft-system-statement,
+.shaft-journey[data-theme="dark"] .shaft-follow-label-copy small,
+.shaft-journey[data-theme="dark"] .shaft-stage-rail button,
+.shaft-journey[data-theme="dark"] .shaft-sound-toggle,
+.shaft-journey[data-theme="dark"] .shaft-progress,
+.shaft-journey[data-theme="dark"] .shaft-scroll-cue {
+  color: rgba(var(--shaft-ink-rgb), 0.68);
+}
+
+.shaft-journey[data-theme="dark"] .shaft-chapter-mark span + span::before {
+  color: rgba(var(--shaft-ink-rgb), 0.34);
+}
+
+.shaft-journey[data-theme="dark"] .shaft-display-wordmark,
+.shaft-journey[data-theme="dark"] .shaft-system-title,
+.shaft-journey[data-theme="dark"] .shaft-follow-label {
+  color: rgba(var(--shaft-ink-rgb), 0.98);
+}
+
+.shaft-journey[data-theme="dark"] .shaft-display-wordmark {
+  filter: drop-shadow(0 0 8px rgba(var(--shaft-paper-rgb), 0.45));
+}
+
+.shaft-journey[data-theme="dark"] .shaft-identity-state p {
+  color: rgba(var(--shaft-ink-rgb), 0.8);
+}
+
+.shaft-journey[data-theme="dark"] .shaft-system-meta b {
+  color: rgba(var(--shaft-ink-rgb), 0.92);
+}
+
+.shaft-journey[data-theme="dark"] .shaft-system-title-ghost {
+  color: rgba(var(--shaft-ink-rgb), 0.075);
+}
+
+.shaft-journey[data-theme="dark"] .shaft-system-trace {
+  background: linear-gradient(
+    90deg,
+    var(--shaft-graphite),
+    rgba(var(--shaft-ink-rgb), 0.2)
+  );
+}
+
+.shaft-journey[data-theme="dark"] .shaft-system-trace b {
+  border-color: rgba(var(--shaft-ink-rgb), 0.92);
+  box-shadow: 0 0 12px rgba(var(--shaft-ink-rgb), 0.2);
+}
+
+.shaft-journey[data-theme="dark"] .shaft-follow-label {
+  text-shadow:
+    0 0 8px rgba(var(--shaft-paper-rgb), 1),
+    0 0 18px rgba(var(--shaft-paper-rgb), 0.96);
+}
+
+.shaft-journey[data-theme="dark"] .shaft-follow-label::before {
+  background: linear-gradient(
+    90deg,
+    var(--shaft-graphite),
+    rgba(var(--shaft-ink-rgb), 0.5)
+  );
+}
+
+.shaft-journey[data-theme="dark"] .shaft-stage-rail button:hover,
+.shaft-journey[data-theme="dark"] .shaft-stage-rail button:focus-visible,
+.shaft-journey[data-theme="dark"] .shaft-stage-rail button.is-active,
+.shaft-journey[data-theme="dark"] .shaft-sound-toggle:hover,
+.shaft-journey[data-theme="dark"] .shaft-sound-toggle:focus-visible,
+.shaft-journey[data-theme="dark"] .shaft-sound-toggle.is-enabled {
+  color: rgba(var(--shaft-ink-rgb), 0.96);
+}
+
+.shaft-journey[data-theme="dark"] .shaft-progress > i {
+  background: rgba(var(--shaft-ink-rgb), 0.5);
+}
+
+.shaft-journey[data-theme="dark"] .shaft-scroll-cue i {
+  background: rgba(var(--shaft-ink-rgb), 0.2);
+}
+
+.shaft-journey[data-theme="dark"] button:focus-visible,
+.shaft-journey[data-theme="dark"] a:focus-visible,
+.shaft-journey[data-theme="dark"] .projects-threshold__hero h2:focus-visible {
+  outline-color: rgba(var(--shaft-ink-rgb), 0.8);
+}
+
+.shaft-journey[data-theme="dark"] .projects-threshold {
+  color: var(--shaft-ink);
+}
+
+.shaft-journey[data-theme="dark"] .projects-threshold__frame {
+  background: var(--shaft-paper-deep);
+  border-top-color: rgba(var(--shaft-ink-rgb), 0.3);
+  box-shadow: 0 -2.5rem 6rem rgba(5, 8, 10, 0.5);
+  filter:
+    drop-shadow(0 -1px 0 rgba(var(--shaft-ink-rgb), 0.44))
+    drop-shadow(0 -1.25rem 1.5rem rgba(5, 8, 10, 0.4));
+}
+
+.shaft-journey[data-theme="dark"]
+  .projects-threshold--shaft-exit
+  .projects-threshold__frame {
+  border-top-color: rgba(var(--shaft-ink-rgb), 0.38);
+  box-shadow: 0 -1.25rem 3.5rem rgba(5, 8, 10, 0.34);
+}
+
+.shaft-journey[data-theme="dark"] .projects-threshold__grid {
+  background-image:
+    linear-gradient(rgba(var(--shaft-ink-rgb), 0.09) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(var(--shaft-ink-rgb), 0.08) 1px, transparent 1px);
+}
+
+.shaft-journey[data-theme="dark"] .projects-threshold__header,
+.shaft-journey[data-theme="dark"] .projects-threshold__footer,
+.shaft-journey[data-theme="dark"] .projects-threshold__hero > p {
+  color: rgba(var(--shaft-ink-rgb), 0.68);
+}
+
+.shaft-journey[data-theme="dark"] .projects-threshold__hero h2 {
+  color: var(--shaft-ink);
+}
+
+.shaft-journey[data-theme="dark"] .projects-threshold__index i {
+  border-top-color: rgba(var(--shaft-ink-rgb), 0.34);
+  border-bottom-color: rgba(var(--shaft-ink-rgb), 0.14);
+  background: linear-gradient(
+    135deg,
+    rgba(var(--shaft-ink-rgb), 0.06),
+    transparent 54%
+  );
+}
+
+.shaft-journey[data-theme="dark"] .projects-threshold__footer {
+  border-top-color: rgba(var(--shaft-ink-rgb), 0.24);
+}
+
 @media (max-width: 900px) {
   .shaft-story {
     height: 820svh;
@@ -2335,6 +2536,23 @@ a:focus-visible {
       ),
       radial-gradient(circle at 55% 70%, rgba(17, 18, 20, 0.035), transparent 18rem);
     opacity: var(--shaft-vignette-opacity);
+  }
+
+  .shaft-journey[data-theme="dark"] .shaft-vignette {
+    background:
+      linear-gradient(
+        180deg,
+        rgba(var(--shaft-paper-rgb), 0.99) 0%,
+        rgba(var(--shaft-paper-rgb), 0.95) 27%,
+        rgba(var(--shaft-paper-rgb), 0.58) 43%,
+        rgba(var(--shaft-paper-rgb), 0.03) 68%,
+        rgba(var(--shaft-paper-rgb), 0.24) 100%
+      ),
+      radial-gradient(
+        circle at 55% 70%,
+        rgba(var(--shaft-ink-rgb), 0.045),
+        transparent 18rem
+      );
   }
 
   .shaft-chapter-mark {

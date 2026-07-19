@@ -20,8 +20,11 @@ export type ShaftJourneyCanvasProps = {
   progressRef: RefObject<number>;
   reducedMotion: boolean;
   soundFrameRef: RefObject<((frame: WeaveSoundFrame) => void) | null>;
+  theme: ShaftTheme;
   waveLabelRef: RefObject<HTMLDivElement | null>;
 };
+
+export type ShaftTheme = "dark" | "light";
 
 type OpacityMaterial = THREE.Material & {
   depthWrite: boolean;
@@ -41,11 +44,42 @@ type TracerRecord = {
   haloMaterial: THREE.MeshBasicMaterial;
 };
 
-const PAPER = "#F4F3EF";
-const PAPER_SOFT = "#E5E4DF";
-const GRAPHITE = "#303235";
-const STEEL = "#5B5E61";
-const LIGHT = "#FFFFFF";
+const SHAFT_SCENE_PALETTES = {
+  dark: {
+    ambient: "#F0ECE4",
+    ambientIntensity: 0.76,
+    background: "#1B2024",
+    exposure: 0.98,
+    fill: "#7D929C",
+    fillIntensity: 0.78,
+    grid: "#869095",
+    gridOpacity: 0.18,
+    key: "#FFF8EC",
+    keyIntensity: 2.3,
+    structure: "#B9C0C3",
+    structureOpacity: 0.34,
+    tracer: "#F6F0E7",
+    wall: "#2A3035",
+    wallOpacity: 0.31,
+  },
+  light: {
+    ambient: "#FFFFFF",
+    ambientIntensity: 1.2,
+    background: "#F4F3EF",
+    exposure: 1.02,
+    fill: "#D7D9D8",
+    fillIntensity: 1.15,
+    grid: "#5B5E61",
+    gridOpacity: 0.2,
+    key: "#FFFFFF",
+    keyIntensity: 2.65,
+    structure: "#303235",
+    structureOpacity: 0.46,
+    tracer: "#FFFFFF",
+    wall: "#E5E4DF",
+    wallOpacity: 0.2,
+  },
+} as const;
 
 const SYSTEM_FOCUS_X: Record<ShaftSystemId, number> = {
   hvac: -1.2,
@@ -177,6 +211,7 @@ export function ShaftJourneyCanvas({
   progressRef,
   reducedMotion,
   soundFrameRef,
+  theme,
   waveLabelRef,
 }: ShaftJourneyCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -205,6 +240,7 @@ export function ShaftJourneyCanvas({
     const waveLabel = waveLabelRef.current;
     const isMobile = mobileTier;
     const isCompact = compactTier;
+    const palette = SHAFT_SCENE_PALETTES[theme];
     let contextFailed = false;
     let renderer: THREE.WebGLRenderer;
 
@@ -222,12 +258,12 @@ export function ShaftJourneyCanvas({
 
     renderer.outputColorSpace = THREE.SRGBColorSpace;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.02;
-    renderer.setClearColor(0xf4f3ef, 1);
+    renderer.toneMappingExposure = palette.exposure;
+    renderer.setClearColor(palette.background, 1);
 
     const scene = new THREE.Scene();
-    scene.background = new THREE.Color(PAPER);
-    scene.fog = new THREE.Fog(PAPER, 28, 165);
+    scene.background = new THREE.Color(palette.background);
+    scene.fog = new THREE.Fog(palette.background, 28, 165);
 
     const camera = new THREE.PerspectiveCamera(isMobile ? 59 : 51, 1, 0.08, 190);
     const shaftRoot = new THREE.Group();
@@ -263,24 +299,24 @@ export function ShaftJourneyCanvas({
     const structureMaterial = registerMaterial(
       shaftMaterials,
       new THREE.MeshStandardMaterial({
-        color: GRAPHITE,
+        color: palette.structure,
         metalness: 0.66,
         roughness: 0.38,
       }),
-      0.46,
+      palette.structureOpacity,
     );
     const wallMaterial = registerMaterial(
       shaftMaterials,
       new THREE.MeshBasicMaterial({
-        color: PAPER_SOFT,
+        color: palette.wall,
         side: THREE.DoubleSide,
       }),
-      0.2,
+      palette.wallOpacity,
     );
     const wallGridMaterial = registerMaterial(
       shaftMaterials,
-      new THREE.LineBasicMaterial({ color: STEEL }),
-      0.2,
+      new THREE.LineBasicMaterial({ color: palette.grid }),
+      palette.gridOpacity,
     );
 
     const shaftHeight = SHAFT_LIMITS.roof - SHAFT_LIMITS.bottom;
@@ -494,18 +530,18 @@ export function ShaftJourneyCanvas({
         metalness: 0.68,
         roughness: 0.34,
       }),
-      0.92,
+      0.98,
     );
     const electricalCableColors = [
-      SHAFT_SYSTEM_COLORS.electrical.dark,
       SHAFT_SYSTEM_COLORS.electrical.primary,
-      SHAFT_SYSTEM_COLORS.electrical.light,
+      SHAFT_SYSTEM_COLORS.electrical.primary,
+      SHAFT_SYSTEM_COLORS.electrical.primary,
     ];
-    const cableMaterials = electricalCableColors.map((color, index) =>
+    const cableMaterials = electricalCableColors.map((color) =>
       registerSystemMaterial(
         "electrical",
         new THREE.MeshStandardMaterial({ color, metalness: 0.28, roughness: 0.46 }),
-        index === 0 ? 0.98 : 0.88,
+        0.98,
       ),
     );
     const electricalVerticalBottom = SHAFT_LIMITS.bottom + 0.08;
@@ -560,6 +596,9 @@ export function ShaftJourneyCanvas({
 
     const electricalBranchStart = SYSTEM_LANES.electrical.x;
     const electricalBranchEnd = SHAFT_LIMITS.halfWidth - 0.08;
+    const electricalTakeoff = new THREE.Group();
+    electricalTakeoff.name = "electrical-coherent-takeoff";
+    electrical.add(electricalTakeoff);
     [-0.29, 0.29].forEach((zOffset) => {
       const branchRail = createCylinderBetween(
         new THREE.Vector3(
@@ -576,7 +615,7 @@ export function ShaftJourneyCanvas({
         trayMaterial,
         8,
       );
-      electrical.add(branchRail);
+      electricalTakeoff.add(branchRail);
     });
 
     const electricalBranchRungGeometry = new THREE.BoxGeometry(0.035, 0.035, 0.64);
@@ -599,7 +638,7 @@ export function ShaftJourneyCanvas({
       electricalBranchRungs.setMatrixAt(index, instanceMatrix);
     }
     electricalBranchRungs.instanceMatrix.needsUpdate = true;
-    electrical.add(electricalBranchRungs);
+    electricalTakeoff.add(electricalBranchRungs);
 
     [-0.18, 0, 0.18].forEach((verticalOffset, index) => {
       const zOffset = (index - 1) * 0.15;
@@ -635,7 +674,7 @@ export function ShaftJourneyCanvas({
           ),
         ),
       );
-      electrical.add(createTube(cableRoute, 0.027, cableMaterials[index], 7, 48));
+      electricalTakeoff.add(createTube(cableRoute, 0.027, cableMaterials[index], 7, 48));
     });
 
     const electricalPenetrationPlate = new THREE.Mesh(
@@ -647,7 +686,7 @@ export function ShaftJourneyCanvas({
       -3.74,
       SYSTEM_LANES.electrical.z,
     );
-    electrical.add(electricalPenetrationPlate);
+    electricalTakeoff.add(electricalPenetrationPlate);
     [-0.15, 0, 0.15].forEach((zOffset, index) => {
       const gland = new THREE.Mesh(
         new THREE.CylinderGeometry(0.055, 0.055, 0.16, 10),
@@ -659,7 +698,15 @@ export function ShaftJourneyCanvas({
         SYSTEM_LANES.electrical.z + zOffset,
       );
       gland.rotation.z = Math.PI / 2;
-      electrical.add(gland);
+      electricalTakeoff.add(gland);
+    });
+
+    // The transparent shaft structure used to sort over this bend, turning one
+    // continuous gold route grey halfway through. Keep the complete electrical
+    // assembly in one foreground layer so its finish stays coherent at every
+    // camera angle while the tracer retains its own higher render order.
+    electrical.traverse((object) => {
+      object.renderOrder = 12;
     });
 
     // Plumbing — three straight, colour-coded services in the front-right lane.
@@ -1030,12 +1077,12 @@ export function ShaftJourneyCanvas({
       tracers.set(id, { coreMaterial, curve, group: marker, haloMaterial });
     });
 
-    const ambient = new THREE.AmbientLight(LIGHT, 1.2);
-    const key = new THREE.DirectionalLight(LIGHT, 2.65);
+    const ambient = new THREE.AmbientLight(palette.ambient, palette.ambientIntensity);
+    const key = new THREE.DirectionalLight(palette.key, palette.keyIntensity);
     key.position.set(-8, 22, 16);
-    const fill = new THREE.DirectionalLight("#D7D9D8", 1.15);
+    const fill = new THREE.DirectionalLight(palette.fill, palette.fillIntensity);
     fill.position.set(14, 4, -12);
-    const tracerLight = new THREE.PointLight(LIGHT, 0, 7, 2);
+    const tracerLight = new THREE.PointLight(palette.tracer, 0, 7, 2);
     scene.add(ambient, key, fill, tracerLight);
 
     const pointer = new THREE.Vector2();
@@ -1307,6 +1354,7 @@ export function ShaftJourneyCanvas({
     progressRef,
     reducedMotion,
     soundFrameRef,
+    theme,
     waveLabelRef,
   ]);
 

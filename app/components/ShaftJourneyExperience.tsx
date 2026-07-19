@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import {
   shaftStages,
   shaftSystemWaves,
@@ -11,7 +11,7 @@ import { systemWaves as weaveSoundWaves } from "@/app/lib/weave-data";
 import { AnimatedDisplayText } from "./AnimatedDisplayText";
 import { DevdarianiDisplayWordmark } from "./DevdarianiDisplayWordmark";
 import { ProjectsThreshold } from "./ProjectsThreshold";
-import { ShaftJourneyCanvas } from "./ShaftJourneyCanvas";
+import { ShaftJourneyCanvas, type ShaftTheme } from "./ShaftJourneyCanvas";
 import {
   useWeaveSoundscape,
   type WeaveSoundFrame,
@@ -79,6 +79,21 @@ function getStageScrollTarget(stage: (typeof shaftStages)[number]) {
   return stage.id === "identity" ? 0 : Math.min(0.94, stage.at + 0.035);
 }
 
+function readShaftTheme(): ShaftTheme {
+  return new URLSearchParams(window.location.search).get("theme") === "light"
+    ? "light"
+    : "dark";
+}
+
+function readServerShaftTheme(): ShaftTheme {
+  return "dark";
+}
+
+function subscribeShaftTheme(onStoreChange: () => void) {
+  window.addEventListener("popstate", onStoreChange);
+  return () => window.removeEventListener("popstate", onStoreChange);
+}
+
 function mapJourneyProgressToSound(progress: number) {
   const system = systemCallouts.find(({ id }) => {
     const [start, end] = shaftSystemWaves[id];
@@ -143,6 +158,11 @@ export function ShaftJourneyExperience() {
   const [activeIndex, setActiveIndex] = useState(0);
   const [interfaceHidden, setInterfaceHidden] = useState(false);
   const [reducedMotion, setReducedMotion] = useState(false);
+  const theme = useSyncExternalStore(
+    subscribeShaftTheme,
+    readShaftTheme,
+    readServerShaftTheme,
+  );
   const soundscape = useWeaveSoundscape(reducedMotion);
   const shaftSoundFrameRef = useRef<((frame: WeaveSoundFrame) => void) | null>(null);
 
@@ -308,7 +328,11 @@ export function ShaftJourneyExperience() {
   const navigationHidden = activeStage.id === "identity";
 
   return (
-    <main className="shaft-journey" data-stage={activeStage.id as ShaftStageId}>
+    <main
+      className="shaft-journey"
+      data-stage={activeStage.id as ShaftStageId}
+      data-theme={theme}
+    >
       <section
         aria-label="Inside the Whole — a scroll journey through an engineered building core"
         className="shaft-story"
@@ -320,6 +344,7 @@ export function ShaftJourneyExperience() {
             progressRef={progressRef}
             reducedMotion={reducedMotion}
             soundFrameRef={shaftSoundFrameRef}
+            theme={theme}
             waveLabelRef={waveLabelRef}
           />
           <div aria-hidden="true" className="shaft-vignette" />

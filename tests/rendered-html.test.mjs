@@ -51,6 +51,7 @@ test("renders the isolated shaft journey route", async () => {
   assert.match(html, /Engineering the Whole\./i);
   assert.match(html, /Fire protection/i);
   assert.match(html, /Orchestrics™/i);
+  assert.match(html, /data-theme=["']dark["']/i);
   assert.match(
     html,
     /class=["'][^"']*\bprojects-threshold\b[^"']*\bprojects-threshold--shaft-exit\b[^"']*["']/i,
