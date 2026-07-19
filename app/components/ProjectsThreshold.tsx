@@ -5,6 +5,7 @@ import { useEffect, useRef } from "react";
 
 type ProjectsThresholdProps = {
   handoffProgressRef: RefObject<number>;
+  variant?: "default" | "portal";
 };
 
 function smoothstep(min: number, max: number, value: number) {
@@ -12,7 +13,10 @@ function smoothstep(min: number, max: number, value: number) {
   return normalized * normalized * (3 - 2 * normalized);
 }
 
-export function ProjectsThreshold({ handoffProgressRef }: ProjectsThresholdProps) {
+export function ProjectsThreshold({
+  handoffProgressRef,
+  variant = "default",
+}: ProjectsThresholdProps) {
   const sectionRef = useRef<HTMLElement>(null);
   const titleRef = useRef<HTMLHeadingElement>(null);
 
@@ -35,7 +39,12 @@ export function ProjectsThreshold({ handoffProgressRef }: ProjectsThresholdProps
       const planeProgress = smoothstep(0, 0.72, effectiveProgress);
       const headerProgress = smoothstep(0.18, 0.62, effectiveProgress);
       const indexProgress = smoothstep(0.5, 0.96, effectiveProgress);
-      const gateOffset = (rawProgress - effectiveProgress) * viewportHeight;
+      const gateOffset =
+        variant === "portal" ? 0 : (rawProgress - effectiveProgress) * viewportHeight;
+      const portalAnchorOffset = variant === "portal" ? -Math.max(0, rect.top) : 0;
+      const compactPortal = window.innerWidth <= 900;
+      const portalInsetX = compactPortal ? 36 : 43;
+      const portalInsetY = compactPortal ? 41 : 38;
 
       section.style.setProperty("--projects-clip", `${((1 - planeProgress) * 17).toFixed(2)}%`);
       section.style.setProperty("--projects-gate-offset", `${gateOffset.toFixed(2)}px`);
@@ -43,6 +52,34 @@ export function ProjectsThreshold({ handoffProgressRef }: ProjectsThresholdProps
       section.style.setProperty("--projects-index-opacity", indexProgress.toFixed(3));
       section.style.setProperty("--projects-index-shift", `${((1 - indexProgress) * 2.5).toFixed(2)}rem`);
       section.style.setProperty("--projects-rule-scale", planeProgress.toFixed(3));
+      section.style.setProperty(
+        "--projects-portal-anchor-offset",
+        `${portalAnchorOffset.toFixed(2)}px`,
+      );
+      section.style.setProperty(
+        "--projects-portal-opacity",
+        smoothstep(0.01, 0.48, effectiveProgress).toFixed(3),
+      );
+      section.style.setProperty(
+        "--projects-portal-inset-x",
+        `${((1 - planeProgress) * portalInsetX).toFixed(2)}%`,
+      );
+      section.style.setProperty(
+        "--projects-portal-inset-y",
+        `${((1 - planeProgress) * portalInsetY).toFixed(2)}%`,
+      );
+      section.style.setProperty(
+        "--projects-portal-pitch",
+        `${((1 - planeProgress) * 16).toFixed(2)}deg`,
+      );
+      section.style.setProperty(
+        "--projects-portal-twist",
+        `${((1 - planeProgress) * -2.4).toFixed(2)}deg`,
+      );
+      section.style.setProperty(
+        "--projects-portal-radius",
+        `${((1 - planeProgress) * 1.1).toFixed(3)}rem`,
+      );
 
       const letters = titleRef.current?.querySelectorAll<HTMLElement>("[data-project-letter]");
       letters?.forEach((letter, index) => {
@@ -76,10 +113,15 @@ export function ProjectsThreshold({ handoffProgressRef }: ProjectsThresholdProps
       window.removeEventListener("resize", requestUpdate);
       media.removeEventListener("change", requestUpdate);
     };
-  }, [handoffProgressRef]);
+  }, [handoffProgressRef, variant]);
 
   return (
-    <section aria-labelledby="projects-title" className="projects-threshold" id="projects" ref={sectionRef}>
+    <section
+      aria-labelledby="projects-title"
+      className={`projects-threshold ${variant === "portal" ? "projects-threshold--portal" : ""}`}
+      id="projects"
+      ref={sectionRef}
+    >
       <div className="projects-threshold__frame">
         <div aria-hidden="true" className="projects-threshold__grid" />
         <header className="projects-threshold__header">
@@ -89,7 +131,7 @@ export function ProjectsThreshold({ handoffProgressRef }: ProjectsThresholdProps
 
         <div className="projects-threshold__hero">
           <p>Selected work</p>
-          <h2 id="projects-title" ref={titleRef}>
+          <h2 id="projects-title" ref={titleRef} tabIndex={-1}>
             <span className="sr-only">Projects</span>
             {Array.from("PROJECTS").map((letter, index) => (
               <span aria-hidden="true" data-project-letter key={`${letter}-${index}`}>

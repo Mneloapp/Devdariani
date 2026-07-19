@@ -43,7 +43,6 @@ type TracerRecord = {
 
 const PAPER = "#F4F3EF";
 const PAPER_SOFT = "#E5E4DF";
-const INK = "#111214";
 const GRAPHITE = "#303235";
 const STEEL = "#5B5E61";
 const LIGHT = "#FFFFFF";
@@ -233,13 +232,9 @@ export function ShaftJourneyCanvas({
     const camera = new THREE.PerspectiveCamera(isMobile ? 59 : 51, 1, 0.08, 190);
     const shaftRoot = new THREE.Group();
     shaftRoot.name = "engineering-shaft";
-    const exteriorRoot = new THREE.Group();
-    exteriorRoot.name = "completed-building";
-    exteriorRoot.visible = false;
-    scene.add(shaftRoot, exteriorRoot);
+    scene.add(shaftRoot);
 
     const shaftMaterials: MaterialRecord[] = [];
-    const exteriorMaterials: MaterialRecord[] = [];
     const systemMaterials = new Map<ShaftSystemId, MaterialRecord[]>();
     const tracers = new Map<ShaftSystemId, TracerRecord>();
 
@@ -1035,131 +1030,6 @@ export function ShaftJourneyCanvas({
       tracers.set(id, { coreMaterial, curve, group: marker, haloMaterial });
     });
 
-    // Exterior world: the engineering core becomes a finished central-city building.
-    const buildingBodyMaterial = registerMaterial(
-      exteriorMaterials,
-      new THREE.MeshStandardMaterial({
-        color: "#D5D4CF",
-        metalness: 0.18,
-        roughness: 0.44,
-      }),
-      0.98,
-    );
-    const buildingEdgeMaterial = registerMaterial(
-      exteriorMaterials,
-      new THREE.LineBasicMaterial({ color: INK }),
-      0.72,
-    );
-    const glazingMaterial = registerMaterial(
-      exteriorMaterials,
-      new THREE.MeshPhysicalMaterial({
-        color: "#272A2D",
-        metalness: 0.24,
-        roughness: 0.18,
-      }),
-      0.88,
-    );
-    const urbanGroundMaterial = registerMaterial(
-      exteriorMaterials,
-      new THREE.MeshStandardMaterial({
-        color: "#CAC9C4",
-        metalness: 0.02,
-        roughness: 0.88,
-        side: THREE.DoubleSide,
-      }),
-      0.94,
-    );
-
-    const mainTowerX = 1.25;
-    const tower = new THREE.Mesh(new THREE.BoxGeometry(10.2, 33.5, 8.2), buildingBodyMaterial);
-    tower.position.set(mainTowerX, -1.25, 0);
-    exteriorRoot.add(tower);
-    addBoxEdges(exteriorRoot, tower, buildingEdgeMaterial);
-
-    const cityWing = new THREE.Mesh(
-      new THREE.BoxGeometry(7.4, 24.2, 9.4),
-      buildingBodyMaterial,
-    );
-    cityWing.position.set(-5.15, -5.9, 0.72);
-    exteriorRoot.add(cityWing);
-    addBoxEdges(exteriorRoot, cityWing, buildingEdgeMaterial);
-
-    const podium = new THREE.Mesh(new THREE.BoxGeometry(20.2, 2.6, 13), buildingBodyMaterial);
-    podium.position.set(0, -16.7, 0.8);
-    exteriorRoot.add(podium);
-    addBoxEdges(exteriorRoot, podium, buildingEdgeMaterial);
-
-    const roofScreen = new THREE.Mesh(new THREE.BoxGeometry(5.8, 1.25, 4.6), glazingMaterial);
-    roofScreen.position.set(mainTowerX, 16.05, 0);
-    exteriorRoot.add(roofScreen);
-
-    const floorRows = isMobile ? 9 : 13;
-    const facadeColumns = isMobile ? 5 : 8;
-    const windowGeometry = new THREE.BoxGeometry(0.72, 1.35, 0.065);
-    const frontWindows = new THREE.InstancedMesh(
-      windowGeometry,
-      glazingMaterial,
-      floorRows * facadeColumns,
-    );
-    for (let row = 0; row < floorRows; row += 1) {
-      for (let column = 0; column < facadeColumns; column += 1) {
-        const x = mainTowerX + lerp(-4.18, 4.18, column / (facadeColumns - 1));
-        const y = lerp(-13.9, 12.6, row / (floorRows - 1));
-        instanceMatrix.makeTranslation(x, y, 4.135);
-        frontWindows.setMatrixAt(row * facadeColumns + column, instanceMatrix);
-      }
-    }
-    frontWindows.instanceMatrix.needsUpdate = true;
-    exteriorRoot.add(frontWindows);
-
-    const wingRows = isMobile ? 6 : 9;
-    const wingColumns = isMobile ? 3 : 5;
-    const wingWindows = new THREE.InstancedMesh(
-      windowGeometry,
-      glazingMaterial,
-      wingRows * wingColumns,
-    );
-    for (let row = 0; row < wingRows; row += 1) {
-      for (let column = 0; column < wingColumns; column += 1) {
-        const x = lerp(-8.15, -2.15, column / (wingColumns - 1));
-        const y = lerp(-14.1, 4.25, row / (wingRows - 1));
-        instanceMatrix.makeTranslation(x, y, 5.455);
-        wingWindows.setMatrixAt(row * wingColumns + column, instanceMatrix);
-      }
-    }
-    wingWindows.instanceMatrix.needsUpdate = true;
-    exteriorRoot.add(wingWindows);
-
-    const terraceGeometry = new THREE.BoxGeometry(7.8, 0.16, 1.35);
-    const terraces = new THREE.InstancedMesh(terraceGeometry, buildingBodyMaterial, 4);
-    [5.95, 1.35, -3.25, -7.85].forEach((level, index) => {
-      instanceMatrix.makeTranslation(-5.15, level, 5.28);
-      terraces.setMatrixAt(index, instanceMatrix);
-    });
-    terraces.instanceMatrix.needsUpdate = true;
-    exteriorRoot.add(terraces);
-
-    const finGeometry = new THREE.BoxGeometry(0.09, 31.5, 0.38);
-    const fins = new THREE.InstancedMesh(finGeometry, buildingBodyMaterial, facadeColumns + 1);
-    for (let index = 0; index <= facadeColumns; index += 1) {
-      instanceMatrix.makeTranslation(
-        mainTowerX + lerp(-4.72, 4.72, index / facadeColumns),
-        -1.3,
-        4.33,
-      );
-      fins.setMatrixAt(index, instanceMatrix);
-    }
-    fins.instanceMatrix.needsUpdate = true;
-    exteriorRoot.add(fins);
-
-    const urbanGround = new THREE.Mesh(
-      new THREE.PlaneGeometry(130, 130),
-      urbanGroundMaterial,
-    );
-    urbanGround.rotation.x = -Math.PI / 2;
-    urbanGround.position.set(0, -18.05, 2);
-    exteriorRoot.add(urbanGround);
-
     const ambient = new THREE.AmbientLight(LIGHT, 1.2);
     const key = new THREE.DirectionalLight(LIGHT, 2.65);
     key.position.set(-8, 22, 16);
@@ -1216,77 +1086,38 @@ export function ShaftJourneyCanvas({
         interiorY + (isMobile ? 1.65 : 1.85),
         -1.25,
       );
-      const roofEntryPosition = new THREE.Vector3(
-        0.4,
-        18.2,
-        isMobile ? 11.5 : 9,
-      );
-      const roofEntryTarget = new THREE.Vector3(0.3, 14.4, 0.2);
-      const roofPosePosition = new THREE.Vector3(
-        isMobile ? 5.8 : 7.4,
-        18.3,
-        isMobile ? 22 : 17.5,
-      );
-      const roofPoseTarget = new THREE.Vector3(0.7, 12.6, 1.2);
-      const midFacadePosition = new THREE.Vector3(
-        isMobile ? 7.4 : 9.8,
-        1,
-        isMobile ? 25 : 21.5,
-      );
-      const midFacadeTarget = new THREE.Vector3(0, -0.5, 1.5);
-      const baseFacadePosition = new THREE.Vector3(
-        isMobile ? 7.6 : 10.2,
-        -12.6,
-        isMobile ? 26 : 22.5,
-      );
-      const baseFacadeTarget = new THREE.Vector3(-0.2, -12, 1);
-      const finalPosition = new THREE.Vector3(
-        isMobile ? 20 : 31,
-        isMobile ? 3 : 4,
-        isMobile ? 68 : 63,
-      );
-      const finalTarget = new THREE.Vector3(-0.4, -0.8, 0.5);
+      const exitPosition = new THREE.Vector3(0.12, 17.4, isMobile ? 4.8 : 4.15);
+      const exitTarget = new THREE.Vector3(0, 20.2, -0.45);
+      const resolvePosition = new THREE.Vector3(0, 21.6, isMobile ? 6.8 : 5.8);
+      const resolveTarget = new THREE.Vector3(0, 23.35, -0.1);
+      const portalPosition = new THREE.Vector3(0, 24.3, isMobile ? 8.4 : 7.1);
+      const portalTarget = new THREE.Vector3(0, 25.5, 0);
 
       if (progress <= 0.82) {
         camera.position.copy(interiorPosition);
         cameraTarget.copy(interiorTarget);
-      } else if (progress <= 0.89) {
-        const exit = smoothstep(0.82, 0.89, progress);
-        camera.position.copy(interiorPosition).lerp(roofEntryPosition, exit);
-        cameraTarget.copy(interiorTarget).lerp(roofEntryTarget, exit);
-      } else if (progress <= 0.92) {
-        const roofOrbit = smoothstep(0.89, 0.92, progress);
-        camera.position.copy(roofEntryPosition).lerp(roofPosePosition, roofOrbit);
-        cameraTarget.copy(roofEntryTarget).lerp(roofPoseTarget, roofOrbit);
-      } else if (progress <= 0.945) {
-        const upperDescent = smoothstep(0.92, 0.945, progress);
-        camera.position.copy(roofPosePosition).lerp(midFacadePosition, upperDescent);
-        cameraTarget.copy(roofPoseTarget).lerp(midFacadeTarget, upperDescent);
-      } else if (progress <= 0.97) {
-        const lowerDescent = smoothstep(0.945, 0.97, progress);
-        camera.position.copy(midFacadePosition).lerp(baseFacadePosition, lowerDescent);
-        cameraTarget.copy(midFacadeTarget).lerp(baseFacadeTarget, lowerDescent);
+      } else if (progress <= 0.9) {
+        const exit = smoothstep(0.82, 0.9, progress);
+        camera.position.copy(interiorPosition).lerp(exitPosition, exit);
+        cameraTarget.copy(interiorTarget).lerp(exitTarget, exit);
+      } else if (progress <= 0.955) {
+        const resolve = smoothstep(0.9, 0.955, progress);
+        camera.position.copy(exitPosition).lerp(resolvePosition, resolve);
+        cameraTarget.copy(exitTarget).lerp(resolveTarget, resolve);
       } else {
-        const pullback = smoothstep(0.97, 0.992, progress);
-        camera.position.copy(baseFacadePosition).lerp(finalPosition, pullback);
-        cameraTarget.copy(baseFacadeTarget).lerp(finalTarget, pullback);
+        const settle = smoothstep(0.955, 0.995, progress);
+        camera.position.copy(resolvePosition).lerp(portalPosition, settle);
+        cameraTarget.copy(resolveTarget).lerp(portalTarget, settle);
       }
 
-      const exteriorPointer = smoothstep(0.88, 0.93, progress);
-      camera.position.x += pointer.x * lerp(0.18, 0.45, exteriorPointer);
-      camera.position.y -= pointer.y * lerp(0.16, 0.28, exteriorPointer);
-      cameraTarget.x += pointer.x * lerp(0.12, 0.08, exteriorPointer);
-      cameraTarget.y -= pointer.y * lerp(0.08, 0.05, exteriorPointer);
+      const exitPointer = 1 - smoothstep(0.88, 0.96, progress);
+      camera.position.x += pointer.x * lerp(0.06, 0.18, exitPointer);
+      camera.position.y -= pointer.y * lerp(0.04, 0.16, exitPointer);
+      cameraTarget.x += pointer.x * 0.08 * exitPointer;
+      cameraTarget.y -= pointer.y * 0.05 * exitPointer;
       const interiorFov = isMobile ? 59 : isCompact ? 54 : 51;
-      const roofFov = isMobile ? 52 : 45;
-      const facadeFov = isMobile ? 48 : 42;
-      const exteriorFov = isMobile ? 44 : 38;
-      const nextFov =
-        progress <= 0.92
-          ? lerp(interiorFov, roofFov, smoothstep(0.84, 0.92, progress))
-          : progress <= 0.97
-            ? lerp(roofFov, facadeFov, smoothstep(0.92, 0.97, progress))
-            : lerp(facadeFov, exteriorFov, smoothstep(0.97, 0.992, progress));
+      const portalFov = isMobile ? 44 : 38;
+      const nextFov = lerp(interiorFov, portalFov, smoothstep(0.84, 0.96, progress));
       if (Math.abs(camera.fov - nextFov) > 0.01) {
         camera.fov = nextFov;
         camera.updateProjectionMatrix();
@@ -1296,10 +1127,8 @@ export function ShaftJourneyCanvas({
 
     const applyProgress = (progress: number, pointerDamping: number) => {
       pointer.lerp(pointerTarget, pointerDamping);
-      const shaftFade = 1 - smoothstep(0.86, 0.94, progress);
-      const exteriorReveal = smoothstep(0.89, 0.94, progress);
+      const shaftFade = 1 - smoothstep(0.865, 0.945, progress);
       const roofOpen = smoothstep(0.755, 0.875, progress);
-      exteriorRoot.visible = exteriorReveal > 0.002;
 
       roofLouvers.forEach((louver, index) => {
         louver.rotation.x = roofOpen * (Math.PI * 0.41);
@@ -1317,11 +1146,6 @@ export function ShaftJourneyCanvas({
           material.opacity = baseOpacity * emphasis;
           material.depthWrite = false;
         });
-      });
-
-      exteriorMaterials.forEach(({ baseOpacity, material }) => {
-        material.opacity = baseOpacity * exteriorReveal;
-        material.depthWrite = exteriorReveal > 0.96 && baseOpacity > 0.9;
       });
 
       applyCamera(progress);

@@ -50,8 +50,10 @@ test("renders the isolated shaft journey route", async () => {
   assert.match(html, /Inside the Whole/i);
   assert.match(html, /Engineering the Whole\./i);
   assert.match(html, /Fire protection/i);
-  assert.match(html, /devdariani-central-city-v3\.webp/i);
-  assert.match(html, /devdariani-central-city-mobile-v3\.webp/i);
-  assert.doesNotMatch(html, /devdariani-city-material-pass-v2\.webp/i);
-  assert.match(html, /Completed DEVDARIANI-engineered building/i);
+  assert.match(html, /shaft-orchestrics-portal/i);
+  assert.match(html, /05 systems \/ 01 whole/i);
+  assert.match(html, /Orchestrics™/i);
+  assert.match(html, /projects-threshold--portal/i);
+  assert.doesNotMatch(html, /devdariani-(?:central-city|city-render|city-material)/i);
+  assert.doesNotMatch(html, /Completed DEVDARIANI-engineered building/i);
 });

@@ -1656,23 +1656,23 @@ a:focus-visible {
 
 .shaft-story {
   --shaft-interface-opacity: 1;
-  --shaft-exterior-progress: 0;
-  --shaft-render-opacity: 0;
-  --shaft-drawing-opacity: 0;
-  --shaft-material-opacity: 0;
-  --shaft-facade-reveal: 5%;
-  --shaft-scan-opacity: 0;
-  --shaft-scan-position: 5%;
-  --shaft-city-opacity: 0;
-  --shaft-city-radius: 10%;
-  --shaft-city-blur: 1.3px;
-  --shaft-render-scale: 2.05;
-  --shaft-render-shift-x: -3%;
-  --shaft-render-shift-y: 65%;
+  --shaft-canvas-opacity: 1;
+  --shaft-portal-opacity: 0;
+  --shaft-portal-draw-hvac: 0;
+  --shaft-portal-draw-electrical: 0;
+  --shaft-portal-draw-plumbing: 0;
+  --shaft-portal-draw-fire: 0;
+  --shaft-portal-draw-bms: 0;
+  --shaft-portal-aperture-draw: 0;
+  --shaft-portal-scale: 0.62;
+  --shaft-portal-pitch: 58deg;
+  --shaft-portal-twist: -7deg;
+  --shaft-portal-depth: 5.2rem;
+  --shaft-portal-resolve: 0;
+  --shaft-portal-field-opacity: 0.12;
+  --shaft-portal-node-scale: 0.35;
+  --shaft-portal-meta-shift: 0.7rem;
   --shaft-vignette-opacity: 1;
-  --shaft-gateway-opacity: 0;
-  --shaft-gateway-shift: 1.1rem;
-  --shaft-gateway-line: 0;
   position: relative;
   z-index: 1;
   height: 900svh;
@@ -1691,7 +1691,7 @@ a:focus-visible {
 }
 
 .shaft-canvas,
-.shaft-real-render,
+.shaft-orchestrics-portal,
 .shaft-vignette {
   position: absolute;
   inset: 0;
@@ -1709,7 +1709,7 @@ a:focus-visible {
 
 .shaft-canvas[data-ready="true"],
 .shaft-canvas[data-failed="true"] {
-  opacity: 1;
+  opacity: var(--shaft-canvas-opacity);
 }
 
 .shaft-canvas[data-failed="true"] {
@@ -1727,173 +1727,158 @@ a:focus-visible {
     var(--shaft-paper);
 }
 
-.shaft-real-render {
+.shaft-orchestrics-portal {
   z-index: 2;
-  margin: 0;
+  display: grid;
+  place-items: center;
   overflow: hidden;
-  background: var(--shaft-paper);
-  opacity: var(--shaft-render-opacity);
+  background: radial-gradient(circle at 50% 50%, rgba(231, 229, 223, 0.34), transparent 39%);
+  opacity: var(--shaft-portal-opacity);
+  perspective: 90rem;
   pointer-events: none;
   will-change: opacity;
 }
 
-.shaft-real-render__camera {
-  position: absolute;
-  inset: 0;
-  overflow: hidden;
-  transform: translate3d(var(--shaft-render-shift-x), var(--shaft-render-shift-y), 0)
-    scale(var(--shaft-render-scale));
-  transform-origin: 51% 50%;
+.shaft-orchestrics-portal__plane {
+  position: relative;
+  width: min(86vw, 72rem);
+  aspect-ratio: 1;
+  transform: translate3d(0, 0, var(--shaft-portal-depth))
+    rotateX(var(--shaft-portal-pitch)) rotateZ(var(--shaft-portal-twist))
+    scale(var(--shaft-portal-scale));
+  transform-style: preserve-3d;
   will-change: transform;
 }
 
-.shaft-real-render::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background:
-    linear-gradient(180deg, transparent 66%, rgba(244, 243, 239, 0.2) 100%),
-    linear-gradient(90deg, rgba(244, 243, 239, 0.08), transparent 24%, transparent 78%, rgba(244, 243, 239, 0.08));
-  opacity: var(--shaft-city-opacity);
-  pointer-events: none;
-}
-
-.shaft-real-render__city,
-.shaft-real-render__facade,
-.shaft-real-render__facade img {
-  position: absolute;
-  inset: 0;
-}
-
-.shaft-real-render img {
+.shaft-orchestrics-portal__geometry {
   display: block;
   width: 100%;
   height: 100%;
-  object-fit: cover;
-  object-position: 50% 52%;
-  user-select: none;
+  overflow: visible;
 }
 
-.shaft-real-render__city {
-  opacity: var(--shaft-city-opacity);
-  filter: blur(var(--shaft-city-blur));
-  -webkit-mask-image: radial-gradient(
-    circle at 51% 57%,
-    #000 0,
-    #000 calc(var(--shaft-city-radius) - 16%),
-    rgba(0, 0, 0, 0.72) calc(var(--shaft-city-radius) - 7%),
-    transparent var(--shaft-city-radius)
-  );
-  mask-image: radial-gradient(
-    circle at 51% 57%,
-    #000 0,
-    #000 calc(var(--shaft-city-radius) - 16%),
-    rgba(0, 0, 0, 0.72) calc(var(--shaft-city-radius) - 7%),
-    transparent var(--shaft-city-radius)
-  );
-  will-change: opacity, filter, mask-image;
+.shaft-orchestrics-portal__field path,
+.shaft-orchestrics-portal__systems path,
+.shaft-orchestrics-portal__aperture rect,
+.shaft-orchestrics-portal__aperture path,
+.shaft-orchestrics-portal__aperture circle {
+  fill: none;
+  vector-effect: non-scaling-stroke;
 }
 
-.shaft-real-render__facade {
-  /* Broad enough to include the tower, lower wing and podium in the registered city plate,
-     while keeping the surrounding blocks out of the floor-by-floor material pass. */
-  clip-path: polygon(
-    46% 11%,
-    63% 13%,
-    63% 79%,
-    67% 81%,
-    67% 92%,
-    35% 92%,
-    35% 81%,
-    39% 79%,
-    39% 36%,
-    46% 35%
-  );
-  will-change: opacity, mask-image;
+.shaft-orchestrics-portal__field path {
+  stroke: rgba(17, 18, 20, 0.12);
+  stroke-width: 0.75;
+  opacity: var(--shaft-portal-field-opacity);
 }
 
-.shaft-real-render__drawing {
-  z-index: 1;
-  opacity: var(--shaft-drawing-opacity);
-  mix-blend-mode: multiply;
+.shaft-orchestrics-portal__aperture rect,
+.shaft-orchestrics-portal__aperture path,
+.shaft-orchestrics-portal__aperture circle {
+  stroke-dasharray: 1;
+  stroke-dashoffset: calc(1 - var(--shaft-portal-aperture-draw));
+  transition: stroke-width 120ms linear;
 }
 
-.shaft-real-render__drawing img {
-  filter: grayscale(1) contrast(1.72) brightness(1.34) saturate(0);
+.shaft-orchestrics-portal__systems path {
+  --shaft-portal-path-draw: 0;
+  stroke-dasharray: 1;
+  stroke-dashoffset: calc(1 - var(--shaft-portal-path-draw));
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.8;
 }
 
-.shaft-real-render__drawing::after {
-  content: "";
+.shaft-orchestrics-portal__systems .is-hvac {
+  --shaft-portal-path-draw: var(--shaft-portal-draw-hvac);
+  stroke: #79b6cf;
+}
+
+.shaft-orchestrics-portal__systems .is-electrical {
+  --shaft-portal-path-draw: var(--shaft-portal-draw-electrical);
+  stroke: #c39843;
+}
+
+.shaft-orchestrics-portal__systems .is-plumbing {
+  --shaft-portal-path-draw: var(--shaft-portal-draw-plumbing);
+  stroke: #258fa8;
+}
+
+.shaft-orchestrics-portal__systems .is-fire {
+  --shaft-portal-path-draw: var(--shaft-portal-draw-fire);
+  stroke: #b84842;
+}
+
+.shaft-orchestrics-portal__systems .is-bms {
+  --shaft-portal-path-draw: var(--shaft-portal-draw-bms);
+  stroke: #7469a3;
+}
+
+.shaft-orchestrics-portal__nodes circle {
+  --shaft-portal-node-opacity: 0;
+  opacity: var(--shaft-portal-node-opacity);
+  transform: scale(var(--shaft-portal-node-scale));
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.shaft-orchestrics-portal__nodes .is-hvac {
+  --shaft-portal-node-opacity: var(--shaft-portal-draw-hvac);
+  fill: #79b6cf;
+}
+
+.shaft-orchestrics-portal__nodes .is-electrical {
+  --shaft-portal-node-opacity: var(--shaft-portal-draw-electrical);
+  fill: #c39843;
+}
+
+.shaft-orchestrics-portal__nodes .is-plumbing {
+  --shaft-portal-node-opacity: var(--shaft-portal-draw-plumbing);
+  fill: #258fa8;
+}
+
+.shaft-orchestrics-portal__nodes .is-fire {
+  --shaft-portal-node-opacity: var(--shaft-portal-draw-fire);
+  fill: #b84842;
+}
+
+.shaft-orchestrics-portal__nodes .is-bms {
+  --shaft-portal-node-opacity: var(--shaft-portal-draw-bms);
+  fill: #7469a3;
+}
+
+.shaft-orchestrics-portal__aperture rect,
+.shaft-orchestrics-portal__aperture path,
+.shaft-orchestrics-portal__aperture circle {
+  stroke: rgba(17, 18, 20, 0.76);
+  stroke-width: 1.05;
+}
+
+.shaft-orchestrics-portal__aperture rect:first-child {
+  stroke: rgba(17, 18, 20, 0.34);
+  stroke-width: 0.8;
+}
+
+.shaft-orchestrics-portal__meta {
   position: absolute;
-  inset: 0;
-  background:
-    repeating-linear-gradient(
-      0deg,
-      transparent 0,
-      transparent calc(6.25% - 1px),
-      rgba(17, 18, 20, 0.3) 6.25%,
-      transparent calc(6.25% + 1px)
-    ),
-    repeating-linear-gradient(
-      90deg,
-      transparent 0,
-      transparent calc(5% - 1px),
-      rgba(17, 18, 20, 0.12) 5%,
-      transparent calc(5% + 1px)
-    );
-  opacity: 0.62;
+  top: 33.2%;
+  left: 50%;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  width: 27%;
+  color: rgba(17, 18, 20, 0.72);
+  font-family: var(--orchestrics-display);
+  font-size: clamp(0.4rem, 0.52vw, 0.58rem);
+  letter-spacing: 0.15em;
+  opacity: var(--shaft-portal-resolve);
+  transform: translate3d(-50%, var(--shaft-portal-meta-shift), 0);
+  text-transform: uppercase;
 }
 
-.shaft-real-render__material {
-  z-index: 2;
-  opacity: var(--shaft-material-opacity);
-  -webkit-mask-image: linear-gradient(
-    to bottom,
-    #000 0,
-    #000 calc(var(--shaft-facade-reveal) - 2.1%),
-    rgba(0, 0, 0, 0.78) var(--shaft-facade-reveal),
-    transparent calc(var(--shaft-facade-reveal) + 2.8%),
-    transparent 100%
-  );
-  mask-image: linear-gradient(
-    to bottom,
-    #000 0,
-    #000 calc(var(--shaft-facade-reveal) - 2.1%),
-    rgba(0, 0, 0, 0.78) var(--shaft-facade-reveal),
-    transparent calc(var(--shaft-facade-reveal) + 2.8%),
-    transparent 100%
-  );
-  will-change: opacity, mask-image;
-}
-
-.shaft-real-render__material::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: repeating-linear-gradient(
-    to bottom,
-    transparent 0,
-    transparent calc(6.25% - 1px),
-    rgba(255, 255, 255, 0.56) 6.25%,
-    transparent calc(6.25% + 1px)
-  );
-  opacity: 0.38;
-  mix-blend-mode: screen;
-}
-
-.shaft-real-render__scan {
-  position: absolute;
-  z-index: 4;
-  top: var(--shaft-scan-position);
-  right: 24%;
-  left: 24%;
-  display: block;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.92), transparent);
-  box-shadow: 0 0 1.4rem rgba(255, 255, 255, 0.72);
-  opacity: var(--shaft-scan-opacity);
-  transform: translate3d(0, -50%, 0);
-  will-change: top, opacity;
+.shaft-orchestrics-portal__meta strong {
+  font-variation-settings: "wght" 320;
+  font-weight: 320;
 }
 
 .shaft-vignette {
@@ -2304,7 +2289,13 @@ a:focus-visible {
   cursor: pointer;
   font-size: 0.53rem;
   letter-spacing: 0.14em;
+  opacity: var(--shaft-interface-opacity);
   text-transform: uppercase;
+  transition: color 220ms ease, opacity 120ms linear;
+}
+
+.shaft-sound-toggle.is-interface-hidden {
+  pointer-events: none;
 }
 
 .shaft-sound-toggle:hover,
@@ -2451,54 +2442,6 @@ a:focus-visible {
   pointer-events: none;
 }
 
-.shaft-projects-gateway {
-  position: absolute;
-  z-index: 14;
-  right: clamp(1.25rem, 3.7vw, 4rem);
-  bottom: clamp(4.8rem, 9vh, 6.5rem);
-  display: grid;
-  grid-template-columns: auto auto;
-  gap: 0.36rem 1rem;
-  width: min(22rem, calc(100vw - 2.5rem));
-  color: rgba(17, 18, 20, 0.94);
-  font-family: var(--orchestrics-display);
-  text-align: right;
-  text-decoration: none;
-  opacity: var(--shaft-gateway-opacity);
-  pointer-events: none;
-  transform: translate3d(0, var(--shaft-gateway-shift), 0);
-}
-
-.shaft-story[data-handoff="true"] .shaft-projects-gateway {
-  pointer-events: auto;
-}
-
-.shaft-projects-gateway span {
-  align-self: end;
-  color: rgba(17, 18, 20, 0.68);
-  font-size: 0.5rem;
-  letter-spacing: 0.17em;
-  text-transform: uppercase;
-}
-
-.shaft-projects-gateway strong {
-  font-size: clamp(0.88rem, 1.2vw, 1.16rem);
-  font-variation-settings: "wght" 280;
-  font-weight: 280;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-}
-
-.shaft-projects-gateway i {
-  grid-column: 1 / -1;
-  display: block;
-  width: 100%;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, var(--shaft-graphite), var(--shaft-ink));
-  transform: scaleX(var(--shaft-gateway-line));
-  transform-origin: right center;
-}
-
 .shaft-journey button:focus-visible,
 .shaft-journey a:focus-visible {
   outline: 1px solid rgba(17, 18, 20, 0.78);
@@ -2516,6 +2459,30 @@ a:focus-visible {
   filter:
     drop-shadow(0 -1px 0 rgba(17, 18, 20, 0.72))
     drop-shadow(0 -1.25rem 1.5rem rgba(17, 18, 20, 0.13));
+}
+
+.shaft-journey .projects-threshold--portal {
+  --projects-portal-anchor-offset: 0px;
+  --projects-portal-inset-x: 43%;
+  --projects-portal-inset-y: 38%;
+  --projects-portal-opacity: 0;
+  --projects-portal-pitch: 16deg;
+  --projects-portal-radius: 1.1rem;
+  --projects-portal-twist: -2.4deg;
+}
+
+.shaft-journey .projects-threshold--portal .projects-threshold__frame {
+  border: 1px solid rgba(17, 18, 20, 0.25);
+  clip-path: inset(
+    var(--projects-portal-inset-y) var(--projects-portal-inset-x)
+      round var(--projects-portal-radius)
+  );
+  opacity: var(--projects-portal-opacity);
+  transform: translate3d(0, var(--projects-portal-anchor-offset), 0)
+    perspective(90rem) rotateX(var(--projects-portal-pitch))
+    rotateZ(var(--projects-portal-twist));
+  transform-origin: center;
+  will-change: clip-path, opacity, transform;
 }
 
 .shaft-journey .projects-threshold__header,
@@ -2551,32 +2518,18 @@ a:focus-visible {
     opacity: var(--shaft-vignette-opacity);
   }
 
-  .shaft-real-render img {
-    object-position: 55% 50%;
+  .shaft-orchestrics-portal__plane {
+    width: min(138vw, 46rem);
   }
 
-  .shaft-real-render__camera {
-    transform-origin: 51% 56%;
-  }
-
-  .shaft-real-render__facade {
-    clip-path: polygon(
-      36% 27%,
-      69% 29%,
-      69% 68%,
-      81% 70%,
-      81% 78%,
-      17% 78%,
-      17% 70%,
-      22% 69%,
-      22% 41%,
-      36% 40%
-    );
-  }
-
-  .shaft-real-render__scan {
-    right: 5%;
-    left: 5%;
+  .shaft-orchestrics-portal__meta {
+    top: 34.5%;
+    align-items: center;
+    flex-direction: column;
+    gap: 0.36rem;
+    width: 31%;
+    font-size: 0.38rem;
+    text-align: center;
   }
 
   .shaft-chapter-mark {
@@ -2675,11 +2628,6 @@ a:focus-visible {
     display: none;
   }
 
-  .shaft-projects-gateway {
-    right: 1.25rem;
-    bottom: calc(4.5rem + env(safe-area-inset-bottom));
-    width: min(18rem, calc(100vw - 2.5rem));
-  }
 }
 
 @media (max-height: 560px) and (max-width: 900px) {
@@ -2708,35 +2656,19 @@ a:focus-visible {
     opacity: 0;
   }
 
-  .shaft-real-render__camera,
-  .shaft-real-render img {
-    transition: none;
-  }
-
-  .shaft-real-render__camera {
-    transform: none;
-  }
-
-  .shaft-real-render {
-    opacity: 1;
-  }
-
-  .shaft-real-render__city {
-    opacity: 1;
-    filter: none;
-    -webkit-mask-image: none;
-    mask-image: none;
-  }
-
-  .shaft-real-render__drawing,
-  .shaft-real-render__material,
-  .shaft-real-render__scan {
+  .shaft-orchestrics-portal,
+  .shaft-canvas {
     display: none;
   }
 
   .shaft-stage-rail,
-  .shaft-scroll-cue,
-  .shaft-projects-gateway {
+  .shaft-scroll-cue {
     display: none;
+  }
+
+  .shaft-journey .projects-threshold--portal .projects-threshold__frame {
+    clip-path: none;
+    opacity: 1;
+    transform: none;
   }
 }

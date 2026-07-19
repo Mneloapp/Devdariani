@@ -135,16 +135,13 @@ export function ShaftJourneyExperience() {
   const lastNarrativeProgressRef = useRef(-1);
   const activeIndexRef = useRef(0);
   const firstStageButtonRef = useRef<HTMLButtonElement>(null);
-  const gatewayRef = useRef<HTMLAnchorElement>(null);
-  const lastStageButtonRef = useRef<HTMLButtonElement>(null);
   const projectsHandoffRef = useRef(0);
   const scrollCueRef = useRef<HTMLButtonElement>(null);
+  const soundToggleRef = useRef<HTMLButtonElement>(null);
   const stageRailRef = useRef<HTMLElement>(null);
   const waveLabelRef = useRef<HTMLDivElement>(null);
   const interfaceHiddenRef = useRef(false);
-  const gatewayVisibleRef = useRef(false);
   const [activeIndex, setActiveIndex] = useState(0);
-  const [gatewayVisible, setGatewayVisible] = useState(false);
   const [interfaceHidden, setInterfaceHidden] = useState(false);
   const [reducedMotion, setReducedMotion] = useState(false);
   const soundscape = useWeaveSoundscape(reducedMotion);
@@ -238,99 +235,89 @@ export function ShaftJourneyExperience() {
       const stage = shaftStages[nextIndex];
       const story = storyRef.current;
       /*
-       * The exterior is one registered image, seen through three treatments. The close crop
-       * follows the facade from roof to street while a stepped mask resolves the drawing into
-       * material floor by floor. Only after that pass completes does the camera pull back and
-       * let the surrounding city into frame. Reusing the exact same pixels avoids a crossfade
-       * jump between the technical and photographic states.
+       * After BMS, the five system traces resolve into one precise aperture. The Projects plane
+       * then expands through that aperture, so the handoff stays continuous without inserting a
+       * building render, a city scene, or a separate call-to-action screen.
        */
-      const exterior = reducedMotion ? 1 : smoothstep(0.82, 0.9, progress);
-      const drawingReveal = reducedMotion ? 1 : smoothstep(0.878, 0.906, progress);
-      const facadeDescent = reducedMotion ? 1 : smoothstep(0.89, 0.958, progress);
-      const materialReveal = reducedMotion ? 1 : smoothstep(0.896, 0.96, progress);
-      const cameraPullback = reducedMotion ? 1 : smoothstep(0.958, 0.988, progress);
-      const cityReveal = reducedMotion ? 1 : smoothstep(0.962, 0.988, progress);
-      const interfaceExit = reducedMotion ? 0 : smoothstep(0.82, 0.905, progress);
-      const gatewayReveal = reducedMotion ? 0 : smoothstep(0.987, 0.994, progress);
-      const handoff = reducedMotion ? 1 : smoothstep(0.993, 0.999, progress);
-
-      const floorCount = 15;
-      const floorPosition = materialReveal * floorCount;
-      const floorIndex = Math.min(floorCount, Math.floor(floorPosition));
-      const floorPhase = floorPosition - Math.floor(floorPosition);
-      const floorEase = smoothstep(0.08, 0.78, floorPhase);
-      const floorReveal =
-        materialReveal >= 1 ? 1 : clamp01((floorIndex + floorEase) / floorCount);
-      const facadeReveal = 5 + floorReveal * 91;
-      const scanOpacity =
-        drawingReveal * (1 - smoothstep(0.958, 0.972, progress)) * (reducedMotion ? 0 : 1);
-      const drawingOpacity = drawingReveal * (1 - cityReveal);
-
-      const compactViewport = window.innerWidth <= 900;
-      const closeScale = compactViewport
-        ? 1.64 - facadeDescent * 0.06
-        : 2.05 - facadeDescent * 0.13;
-      const renderScale = closeScale + (1 - closeScale) * cameraPullback;
-      const closeShiftY = compactViewport
-        ? 22 - facadeDescent * 42
-        : 65 - facadeDescent * 123;
-      const closeShiftX = compactViewport ? 0 : -3 + facadeDescent * 3;
+      const portalEnter = reducedMotion ? 0 : smoothstep(0.825, 0.885, progress);
+      const portalResolve = reducedMotion ? 1 : smoothstep(0.89, 0.965, progress);
+      const portalExit = reducedMotion ? 1 : smoothstep(0.955, 0.997, progress);
+      const interfaceExit = reducedMotion ? 0 : smoothstep(0.82, 0.895, progress);
+      const handoff = reducedMotion ? 1 : smoothstep(0.9, 0.997, progress);
+      const portalOpacity = portalEnter * (1 - portalExit);
+      const canvasOpacity = reducedMotion ? 0 : 1 - smoothstep(0.92, 0.988, progress);
 
       projectsHandoffRef.current = handoff;
       story?.style.setProperty("--shaft-interface-opacity", (1 - interfaceExit).toFixed(3));
-      story?.style.setProperty("--shaft-exterior-progress", exterior.toFixed(3));
-      story?.style.setProperty("--shaft-render-opacity", drawingReveal.toFixed(3));
-      story?.style.setProperty("--shaft-drawing-opacity", drawingOpacity.toFixed(3));
-      story?.style.setProperty("--shaft-material-opacity", drawingReveal.toFixed(3));
-      story?.style.setProperty("--shaft-facade-reveal", `${facadeReveal.toFixed(2)}%`);
-      story?.style.setProperty("--shaft-scan-opacity", scanOpacity.toFixed(3));
-      story?.style.setProperty("--shaft-scan-position", `${facadeReveal.toFixed(2)}%`);
-      story?.style.setProperty("--shaft-city-opacity", cityReveal.toFixed(3));
+      story?.style.setProperty("--shaft-canvas-opacity", canvasOpacity.toFixed(3));
+      story?.style.setProperty("--shaft-portal-opacity", portalOpacity.toFixed(3));
       story?.style.setProperty(
-        "--shaft-city-radius",
-        `${(10 + cityReveal * 118).toFixed(2)}%`,
+        "--shaft-portal-draw-hvac",
+        (reducedMotion ? 1 : smoothstep(0.838, 0.887, progress)).toFixed(4),
       );
       story?.style.setProperty(
-        "--shaft-city-blur",
-        `${((1 - cityReveal) * 1.3).toFixed(2)}px`,
-      );
-      story?.style.setProperty("--shaft-render-scale", renderScale.toFixed(4));
-      story?.style.setProperty(
-        "--shaft-render-shift-y",
-        `${(closeShiftY * (1 - cameraPullback)).toFixed(3)}%`,
+        "--shaft-portal-draw-electrical",
+        (reducedMotion ? 1 : smoothstep(0.849, 0.899, progress)).toFixed(4),
       );
       story?.style.setProperty(
-        "--shaft-render-shift-x",
-        `${(closeShiftX * (1 - cameraPullback)).toFixed(3)}%`,
+        "--shaft-portal-draw-plumbing",
+        (reducedMotion ? 1 : smoothstep(0.86, 0.911, progress)).toFixed(4),
+      );
+      story?.style.setProperty(
+        "--shaft-portal-draw-fire",
+        (reducedMotion ? 1 : smoothstep(0.871, 0.924, progress)).toFixed(4),
+      );
+      story?.style.setProperty(
+        "--shaft-portal-draw-bms",
+        (reducedMotion ? 1 : smoothstep(0.882, 0.937, progress)).toFixed(4),
+      );
+      story?.style.setProperty(
+        "--shaft-portal-aperture-draw",
+        (reducedMotion ? 1 : smoothstep(0.892, 0.952, progress)).toFixed(4),
+      );
+      story?.style.setProperty(
+        "--shaft-portal-scale",
+        (0.62 + portalResolve * 0.58).toFixed(4),
+      );
+      story?.style.setProperty(
+        "--shaft-portal-pitch",
+        `${((1 - portalResolve) * 58).toFixed(2)}deg`,
+      );
+      story?.style.setProperty(
+        "--shaft-portal-twist",
+        `${((1 - portalResolve) * -7).toFixed(2)}deg`,
+      );
+      story?.style.setProperty(
+        "--shaft-portal-depth",
+        `${((1 - portalResolve) * 5.2).toFixed(3)}rem`,
+      );
+      story?.style.setProperty("--shaft-portal-resolve", portalResolve.toFixed(3));
+      story?.style.setProperty(
+        "--shaft-portal-field-opacity",
+        (0.12 + portalResolve * 0.42).toFixed(3),
+      );
+      story?.style.setProperty(
+        "--shaft-portal-node-scale",
+        (0.35 + portalResolve * 0.65).toFixed(3),
+      );
+      story?.style.setProperty(
+        "--shaft-portal-meta-shift",
+        `${((1 - portalResolve) * 0.7).toFixed(3)}rem`,
       );
       story?.style.setProperty(
         "--shaft-vignette-opacity",
-        ((1 - exterior * 0.72) * (1 - drawingReveal * 0.5) * (1 - cityReveal)).toFixed(3),
+        ((1 - portalEnter * 0.82) * (1 - handoff * 0.8)).toFixed(3),
       );
-      story?.style.setProperty("--shaft-gateway-opacity", gatewayReveal.toFixed(3));
-      story?.style.setProperty(
-        "--shaft-gateway-shift",
-        `${((1 - gatewayReveal) * 1.1).toFixed(3)}rem`,
-      );
-      story?.style.setProperty("--shaft-gateway-line", gatewayReveal.toFixed(3));
-
-      const nextGatewayVisible = gatewayReveal > 0.08;
-      if (story) story.dataset.handoff = String(nextGatewayVisible);
-      if (nextGatewayVisible !== gatewayVisibleRef.current) {
-        const railHadFocus = stageRailRef.current?.contains(document.activeElement) ?? false;
-        const gatewayHadFocus = gatewayRef.current === document.activeElement;
-        gatewayVisibleRef.current = nextGatewayVisible;
-        setGatewayVisible(nextGatewayVisible);
-        if (nextGatewayVisible && railHadFocus) {
-          window.requestAnimationFrame(() => gatewayRef.current?.focus({ preventScroll: true }));
-        } else if (!nextGatewayVisible && gatewayHadFocus) {
+      const shouldHideInterface = interfaceExit > 0.96;
+      if (shouldHideInterface !== interfaceHiddenRef.current) {
+        const interfaceHadFocus =
+          stageRailRef.current?.contains(document.activeElement) ||
+          soundToggleRef.current === document.activeElement;
+        if (shouldHideInterface && interfaceHadFocus) {
           window.requestAnimationFrame(() =>
-            lastStageButtonRef.current?.focus({ preventScroll: true }),
+            document.getElementById("projects-title")?.focus({ preventScroll: true }),
           );
         }
-      }
-      const shouldHideInterface = nextGatewayVisible;
-      if (shouldHideInterface !== interfaceHiddenRef.current) {
         interfaceHiddenRef.current = shouldHideInterface;
         setInterfaceHidden(shouldHideInterface);
       }
@@ -397,64 +384,44 @@ export function ShaftJourneyExperience() {
             soundFrameRef={shaftSoundFrameRef}
             waveLabelRef={waveLabelRef}
           />
-          <figure className="shaft-real-render">
-            <div className="shaft-real-render__camera">
-              {/* One registered source is reused throughout the reveal. The city, technical
-                  drawing and material layers therefore share exactly the same silhouette. */}
-              <picture>
-                <source
-                  media="(max-width: 900px)"
-                  srcSet="/devdariani-central-city-mobile-v3.webp"
-                />
-                <img
-                  alt="Completed DEVDARIANI-engineered building in a central city setting after the coordinated MEP core is revealed."
-                  className="shaft-real-render__city"
-                  decoding="async"
-                  draggable="false"
-                  fetchPriority="high"
-                  loading="eager"
-                  src="/devdariani-central-city-v3.webp"
-                />
-              </picture>
-              <span
-                aria-hidden="true"
-                className="shaft-real-render__facade shaft-real-render__drawing"
+          <div aria-hidden="true" className="shaft-orchestrics-portal">
+            <div className="shaft-orchestrics-portal__plane">
+              <svg
+                className="shaft-orchestrics-portal__geometry"
+                preserveAspectRatio="xMidYMid meet"
+                viewBox="0 0 1000 1000"
               >
-                <picture>
-                  <source
-                    media="(max-width: 900px)"
-                    srcSet="/devdariani-central-city-mobile-v3.webp"
-                  />
-                  <img
-                    alt=""
-                    decoding="async"
-                    draggable="false"
-                    loading="eager"
-                    src="/devdariani-central-city-v3.webp"
-                  />
-                </picture>
-              </span>
-              <span
-                aria-hidden="true"
-                className="shaft-real-render__facade shaft-real-render__material"
-              >
-                <picture>
-                  <source
-                    media="(max-width: 900px)"
-                    srcSet="/devdariani-central-city-mobile-v3.webp"
-                  />
-                  <img
-                    alt=""
-                    decoding="async"
-                    draggable="false"
-                    loading="eager"
-                    src="/devdariani-central-city-v3.webp"
-                  />
-                </picture>
-              </span>
-              <i aria-hidden="true" className="shaft-real-render__scan" />
+                <g className="shaft-orchestrics-portal__field">
+                  <path d="M180 0V1000M340 0V1000M500 0V1000M660 0V1000M820 0V1000" />
+                  <path d="M0 180H1000M0 340H1000M0 500H1000M0 660H1000M0 820H1000" />
+                </g>
+                <g className="shaft-orchestrics-portal__systems">
+                  <path className="is-hvac" d="M0 170H215V352H352" pathLength="1" />
+                  <path className="is-electrical" d="M1000 245H790V378H648" pathLength="1" />
+                  <path className="is-plumbing" d="M0 735H238V632H352" pathLength="1" />
+                  <path className="is-fire" d="M1000 805H755V664H648" pathLength="1" />
+                  <path className="is-bms" d="M500 0V320" pathLength="1" />
+                </g>
+                <g className="shaft-orchestrics-portal__nodes">
+                  <circle className="is-hvac" cx="352" cy="352" r="7" />
+                  <circle className="is-electrical" cx="648" cy="378" r="7" />
+                  <circle className="is-plumbing" cx="352" cy="632" r="7" />
+                  <circle className="is-fire" cx="648" cy="664" r="7" />
+                  <circle className="is-bms" cx="500" cy="320" r="7" />
+                </g>
+                <g className="shaft-orchestrics-portal__aperture">
+                  <rect height="600" pathLength="1" width="520" x="240" y="200" />
+                  <rect height="360" pathLength="1" width="296" x="352" y="320" />
+                  <path d="M352 500H648M500 320V680" pathLength="1" />
+                  <circle cx="500" cy="500" pathLength="1" r="112" />
+                </g>
+              </svg>
+              <div className="shaft-orchestrics-portal__meta">
+                <span>05 systems / 01 whole</span>
+                <strong>Orchestrics™</strong>
+              </div>
             </div>
-          </figure>
+          </div>
           <div aria-hidden="true" className="shaft-vignette" />
 
           <header className="shaft-chapter-mark" aria-hidden="true">
@@ -471,9 +438,14 @@ export function ShaftJourneyExperience() {
                 : "Sound is unavailable in this browser"
             }
             aria-pressed={soundscape.enabled}
-            className={`shaft-sound-toggle ${soundscape.enabled ? "is-enabled" : ""}`}
+            aria-hidden={interfaceHidden}
+            className={`shaft-sound-toggle ${soundscape.enabled ? "is-enabled" : ""} ${
+              interfaceHidden ? "is-interface-hidden" : ""
+            }`}
             disabled={!soundscape.available}
             onClick={() => void soundscape.toggleSound()}
+            ref={soundToggleRef}
+            tabIndex={interfaceHidden ? -1 : 0}
             type="button"
           >
             <span aria-hidden="true" className="shaft-sound-bars">
@@ -573,9 +545,7 @@ export function ShaftJourneyExperience() {
                 ref={
                   stage.id === "hvac"
                     ? firstStageButtonRef
-                    : stage.id === "bms"
-                      ? lastStageButtonRef
-                      : undefined
+                    : undefined
                 }
                 tabIndex={navigationHidden || interfaceHidden ? -1 : 0}
                 type="button"
@@ -613,19 +583,6 @@ export function ShaftJourneyExperience() {
             <i aria-hidden="true" />
           </button>
 
-          <a
-            aria-hidden={!gatewayVisible}
-            aria-label="Continue to projects"
-            className="shaft-projects-gateway"
-            href="#projects"
-            ref={gatewayRef}
-            tabIndex={gatewayVisible ? 0 : -1}
-          >
-            <span>The building is complete</span>
-            <strong>View projects</strong>
-            <i aria-hidden="true" />
-          </a>
-
           <ol className="sr-only">
             {shaftStages.map((stage) => (
               <li key={stage.id}>
@@ -635,14 +592,13 @@ export function ShaftJourneyExperience() {
           </ol>
           <p className="sr-only">
             The camera travels upward through a coordinated engineering shaft containing HVAC,
-            electrical, plumbing, fire protection, and BMS systems, then exits through the roof to
-            reveal the completed building around the same core. Its technical outline resolves
-            into real materials floor by floor as the camera descends to street level, then pulls
-            back to reveal the central city and the projects index.
+            electrical, plumbing, fire protection, and BMS systems. After the roof opens, the five
+            system traces resolve into one Orchestrics aperture and the Projects index expands
+            directly through it.
           </p>
         </div>
       </section>
-      <ProjectsThreshold handoffProgressRef={projectsHandoffRef} />
+      <ProjectsThreshold handoffProgressRef={projectsHandoffRef} variant="portal" />
     </main>
   );
 }
