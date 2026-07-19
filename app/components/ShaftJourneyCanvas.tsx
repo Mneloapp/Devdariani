@@ -1164,6 +1164,17 @@ export function ShaftJourneyCanvas({
       pointer.lerp(pointerTarget, pointerDamping);
       const shaftFade = 1 - smoothstep(0.885, 0.955, progress);
       const roofOpen = smoothstep(0.755, 0.875, progress);
+      const plumbingStart = shaftSystemWaves.plumbing[0];
+      const electricalExit = smoothstep(
+        plumbingStart - 0.01,
+        plumbingStart + 0.02,
+        progress,
+      );
+
+      // Clear the visual field for Plumbing: the complete Electrical assembly
+      // lifts out as the water wave begins, then leaves the render entirely.
+      electrical.position.y = electricalExit * (isMobile ? 2.4 : 3.2);
+      electrical.visible = electricalExit < 0.999;
 
       roofLouvers.forEach((louver, index) => {
         louver.rotation.x = roofOpen * (Math.PI * 0.41);
@@ -1176,7 +1187,10 @@ export function ShaftJourneyCanvas({
       });
 
       systemMaterials.forEach((records, id) => {
-        const emphasis = reducedMotion ? 0 : systemEmphasis(id, progress) * shaftFade;
+        const exitOpacity = id === "electrical" ? 1 - electricalExit : 1;
+        const emphasis = reducedMotion
+          ? 0
+          : systemEmphasis(id, progress) * shaftFade * exitOpacity;
         records.forEach(({ baseOpacity, material }) => {
           material.opacity = baseOpacity * emphasis;
           material.depthWrite = false;
