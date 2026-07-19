@@ -4,43 +4,6 @@ import test from "node:test";
 const developmentPreviewMeta =
   /<meta(?=[^>]*\bname=["']codex-preview["'])(?=[^>]*\bcontent=["']development["'])[^>]*>/i;
 
-const portalSystems = [
-  {
-    descriptor: "Ductwork + ventilation",
-    id: "hvac",
-    label: "HVAC",
-    number: "01",
-  },
-  {
-    descriptor: "Cable containment",
-    id: "electrical",
-    label: "Electrical",
-    number: "02",
-  },
-  {
-    descriptor: "Supply + return",
-    id: "plumbing",
-    label: "Plumbing",
-    number: "03",
-  },
-  {
-    descriptor: "Flanged life-safety riser",
-    id: "fire",
-    label: "Fire protection",
-    number: "04",
-  },
-  {
-    descriptor: "Cabinet + control network",
-    id: "bms",
-    label: "BMS",
-    number: "05",
-  },
-];
-
-function escapeRegExp(value) {
-  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-}
-
 async function loadWorker() {
   const workerUrl = new URL("../dist/server/index.js", import.meta.url);
   workerUrl.searchParams.set("test", `${process.pid}-${Date.now()}`);
@@ -87,29 +50,23 @@ test("renders the isolated shaft journey route", async () => {
   assert.match(html, /Inside the Whole/i);
   assert.match(html, /Engineering the Whole\./i);
   assert.match(html, /Fire protection/i);
-  assert.match(html, /shaft-orchestrics-portal/i);
-  assert.match(html, /05 systems \/ 01 whole/i);
   assert.match(html, /Orchestrics™/i);
-  assert.match(html, /projects-threshold--portal/i);
+  assert.match(
+    html,
+    /class=["'][^"']*\bprojects-threshold\b[^"']*\bprojects-threshold--shaft-exit\b[^"']*["']/i,
+  );
+  assert.match(html, /\bid=["']projects["']/i);
+  assert.match(html, /\bid=["']projects-title["']/i);
+  assert.equal((html.match(/\bdata-project-letter=/gi) ?? []).length, 8);
+  assert.match(
+    html,
+    /After BMS completes[\s\S]*?roof opens[\s\S]*?camera exits the shaft[\s\S]*?Projects index rises directly/i,
+  );
 
-  assert.equal((html.match(/\bdata-portal-path=/gi) ?? []).length, 5);
-  assert.equal((html.match(/\bdata-portal-marker=/gi) ?? []).length, 5);
-  assert.equal((html.match(/\bdata-portal-callout=/gi) ?? []).length, 5);
-
-  for (const { descriptor, id, label, number } of portalSystems) {
-    assert.match(html, new RegExp(`\\bdata-portal-path=["']${id}["']`, "i"));
-    assert.match(html, new RegExp(`\\bdata-portal-marker=["']${id}["']`, "i"));
-    assert.match(
-      html,
-      new RegExp(
-        `<div(?=[^>]*\\bdata-portal-callout=["']${id}["'])[^>]*>` +
-          `[\\s\\S]*?<strong>[\\s\\S]*?${number}[\\s\\S]*?${escapeRegExp(label)}` +
-          `[\\s\\S]*?</strong>[\\s\\S]*?<small>${escapeRegExp(descriptor)}</small>` +
-          `[\\s\\S]*?</div>`,
-        "i",
-      ),
-    );
-  }
+  assert.doesNotMatch(
+    html,
+    /shaft-orchestrics-portal|shaft-portal-callout|data-portal-(?:path|marker|callout)=|projects-threshold--portal|05 systems\s*\/\s*01 whole|Orchestrics aperture/i,
+  );
 
   assert.doesNotMatch(html, /devdariani-(?:central-city|city-render|city-material)/i);
   assert.doesNotMatch(html, /Completed DEVDARIANI-engineered building/i);

@@ -1657,26 +1657,6 @@ a:focus-visible {
 .shaft-story {
   --shaft-interface-opacity: 1;
   --shaft-canvas-opacity: 1;
-  --shaft-portal-opacity: 0;
-  --shaft-portal-draw-hvac: 0;
-  --shaft-portal-draw-electrical: 0;
-  --shaft-portal-draw-plumbing: 0;
-  --shaft-portal-draw-fire: 0;
-  --shaft-portal-draw-bms: 0;
-  --shaft-portal-node-hvac: 0;
-  --shaft-portal-node-electrical: 0;
-  --shaft-portal-node-plumbing: 0;
-  --shaft-portal-node-fire: 0;
-  --shaft-portal-node-bms: 0;
-  --shaft-portal-aperture-draw: 0;
-  --shaft-portal-scale: 0.62;
-  --shaft-portal-pitch: 58deg;
-  --shaft-portal-twist: -7deg;
-  --shaft-portal-depth: 5.2rem;
-  --shaft-portal-resolve: 0;
-  --shaft-portal-field-opacity: 0.12;
-  --shaft-portal-node-scale: 0.35;
-  --shaft-portal-meta-shift: 0.7rem;
   --shaft-vignette-opacity: 1;
   position: relative;
   z-index: 1;
@@ -1696,7 +1676,6 @@ a:focus-visible {
 }
 
 .shaft-canvas,
-.shaft-orchestrics-portal,
 .shaft-vignette {
   position: absolute;
   inset: 0;
@@ -1730,300 +1709,6 @@ a:focus-visible {
     ),
     radial-gradient(circle at 50% 86%, rgba(17, 18, 20, 0.08), transparent 42%),
     var(--shaft-paper);
-}
-
-.shaft-orchestrics-portal {
-  z-index: 2;
-  display: grid;
-  place-items: center;
-  overflow: hidden;
-  background: radial-gradient(circle at 50% 50%, rgba(231, 229, 223, 0.34), transparent 39%);
-  opacity: var(--shaft-portal-opacity);
-  perspective: 90rem;
-  pointer-events: none;
-  will-change: opacity;
-}
-
-.shaft-orchestrics-portal__plane {
-  position: relative;
-  width: min(86vw, 72rem);
-  aspect-ratio: 1;
-  transform: translate3d(0, 0, var(--shaft-portal-depth))
-    rotateX(var(--shaft-portal-pitch)) rotateZ(var(--shaft-portal-twist))
-    scale(var(--shaft-portal-scale));
-  transform-style: preserve-3d;
-  will-change: transform;
-}
-
-.shaft-orchestrics-portal__geometry {
-  display: block;
-  width: 100%;
-  height: 100%;
-  overflow: visible;
-}
-
-.shaft-orchestrics-portal__field path,
-.shaft-orchestrics-portal__systems path,
-.shaft-orchestrics-portal__aperture rect,
-.shaft-orchestrics-portal__aperture path,
-.shaft-orchestrics-portal__aperture circle {
-  fill: none;
-  vector-effect: non-scaling-stroke;
-}
-
-.shaft-orchestrics-portal__field path {
-  stroke: rgba(17, 18, 20, 0.12);
-  stroke-width: 0.75;
-  opacity: var(--shaft-portal-field-opacity);
-}
-
-.shaft-orchestrics-portal__aperture rect,
-.shaft-orchestrics-portal__aperture path,
-.shaft-orchestrics-portal__aperture circle {
-  stroke-dasharray: 1;
-  stroke-dashoffset: calc(1 - var(--shaft-portal-aperture-draw));
-  transition: stroke-width 120ms linear;
-}
-
-.shaft-orchestrics-portal__systems path {
-  --shaft-portal-path-draw: 0;
-  stroke-dasharray: 1;
-  stroke-dashoffset: calc(1 - var(--shaft-portal-path-draw));
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  stroke-width: 1.8;
-}
-
-.shaft-orchestrics-portal__systems .is-hvac {
-  --shaft-portal-path-draw: var(--shaft-portal-draw-hvac);
-  stroke: #79b6cf;
-}
-
-.shaft-orchestrics-portal__systems .is-electrical {
-  --shaft-portal-path-draw: var(--shaft-portal-draw-electrical);
-  stroke: #c39843;
-}
-
-.shaft-orchestrics-portal__systems .is-plumbing {
-  --shaft-portal-path-draw: var(--shaft-portal-draw-plumbing);
-  stroke: #258fa8;
-}
-
-.shaft-orchestrics-portal__systems .is-fire {
-  --shaft-portal-path-draw: var(--shaft-portal-draw-fire);
-  stroke: #b84842;
-}
-
-.shaft-orchestrics-portal__systems .is-bms {
-  --shaft-portal-path-draw: var(--shaft-portal-draw-bms);
-  stroke: #7469a3;
-}
-
-.shaft-orchestrics-portal__marker {
-  --shaft-portal-marker-opacity: 0;
-  opacity: var(--shaft-portal-marker-opacity);
-  will-change: opacity;
-}
-
-.shaft-orchestrics-portal__marker.is-hvac {
-  color: #79b6cf;
-}
-
-.shaft-orchestrics-portal__marker.is-electrical {
-  color: #c39843;
-}
-
-.shaft-orchestrics-portal__marker.is-plumbing {
-  color: #258fa8;
-}
-
-.shaft-orchestrics-portal__marker.is-fire {
-  color: #b84842;
-}
-
-.shaft-orchestrics-portal__marker.is-bms {
-  color: #7469a3;
-}
-
-.shaft-orchestrics-portal__marker-halo,
-.shaft-orchestrics-portal__marker-core {
-  vector-effect: non-scaling-stroke;
-}
-
-.shaft-orchestrics-portal__marker-halo {
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 1.2;
-  opacity: 0.34;
-}
-
-.shaft-orchestrics-portal__marker-core {
-  fill: currentColor;
-  stroke: var(--shaft-paper);
-  stroke-width: 2.4;
-}
-
-.shaft-orchestrics-portal__nodes circle {
-  --shaft-portal-node-opacity: 0;
-  opacity: var(--shaft-portal-node-opacity);
-  transform: scale(var(--shaft-portal-node-scale));
-  transform-box: fill-box;
-  transform-origin: center;
-}
-
-.shaft-orchestrics-portal__nodes .is-hvac {
-  --shaft-portal-node-opacity: var(--shaft-portal-node-hvac);
-  fill: #79b6cf;
-}
-
-.shaft-orchestrics-portal__nodes .is-electrical {
-  --shaft-portal-node-opacity: var(--shaft-portal-node-electrical);
-  fill: #c39843;
-}
-
-.shaft-orchestrics-portal__nodes .is-plumbing {
-  --shaft-portal-node-opacity: var(--shaft-portal-node-plumbing);
-  fill: #258fa8;
-}
-
-.shaft-orchestrics-portal__nodes .is-fire {
-  --shaft-portal-node-opacity: var(--shaft-portal-node-fire);
-  fill: #b84842;
-}
-
-.shaft-orchestrics-portal__nodes .is-bms {
-  --shaft-portal-node-opacity: var(--shaft-portal-node-bms);
-  fill: #7469a3;
-}
-
-.shaft-orchestrics-portal__aperture rect,
-.shaft-orchestrics-portal__aperture path,
-.shaft-orchestrics-portal__aperture circle {
-  stroke: rgba(17, 18, 20, 0.76);
-  stroke-width: 1.05;
-}
-
-.shaft-orchestrics-portal__aperture rect:first-child {
-  stroke: rgba(17, 18, 20, 0.34);
-  stroke-width: 0.8;
-}
-
-.shaft-orchestrics-portal__meta {
-  position: absolute;
-  top: 33.2%;
-  left: 50%;
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  width: 27%;
-  color: rgba(17, 18, 20, 0.72);
-  font-family: var(--orchestrics-display);
-  font-size: clamp(0.4rem, 0.52vw, 0.58rem);
-  letter-spacing: 0.15em;
-  opacity: var(--shaft-portal-resolve);
-  transform: translate3d(-50%, var(--shaft-portal-meta-shift), 0);
-  text-transform: uppercase;
-}
-
-.shaft-orchestrics-portal__meta strong {
-  font-variation-settings: "wght" 320;
-  font-weight: 320;
-}
-
-.shaft-portal-callout {
-  --shaft-portal-callout-accent: var(--shaft-graphite);
-  --shaft-portal-callout-opacity: 0;
-  --shaft-portal-callout-x: -300px;
-  --shaft-portal-callout-y: -300px;
-  position: absolute;
-  z-index: 3;
-  top: 0;
-  left: 0;
-  display: grid;
-  gap: 0.28rem;
-  min-width: 13.75rem;
-  padding-left: 1.45rem;
-  color: rgba(17, 18, 20, 0.94);
-  font-family: var(--orchestrics-display);
-  opacity: var(--shaft-portal-callout-opacity);
-  pointer-events: none;
-  text-shadow:
-    0 0 8px rgba(244, 243, 239, 1),
-    0 0 18px rgba(244, 243, 239, 0.96);
-  transform: translate3d(
-      var(--shaft-portal-callout-x),
-      var(--shaft-portal-callout-y),
-      0
-    )
-    translate(0.85rem, -50%);
-  will-change: opacity, transform;
-}
-
-.shaft-portal-callout::before {
-  content: "";
-  position: absolute;
-  top: 0.48rem;
-  left: 0;
-  width: 1rem;
-  height: 1px;
-  background: var(--shaft-portal-callout-accent);
-}
-
-.shaft-portal-callout[data-align="left"] {
-  padding-right: 1.45rem;
-  padding-left: 0;
-  text-align: right;
-  transform: translate3d(
-      var(--shaft-portal-callout-x),
-      var(--shaft-portal-callout-y),
-      0
-    )
-    translate(calc(-100% - 0.85rem), -50%);
-}
-
-.shaft-portal-callout[data-align="left"]::before {
-  right: 0;
-  left: auto;
-}
-
-.shaft-portal-callout strong {
-  font-size: 0.64rem;
-  font-variation-settings: "wght" 330;
-  font-weight: 330;
-  letter-spacing: 0.16em;
-  line-height: 1;
-  text-transform: uppercase;
-}
-
-.shaft-portal-callout small {
-  color: rgba(17, 18, 20, 0.64);
-  font-size: 0.49rem;
-  font-variation-settings: "wght" 300;
-  font-weight: 300;
-  letter-spacing: 0.13em;
-  line-height: 1.25;
-  text-transform: uppercase;
-  white-space: nowrap;
-}
-
-.shaft-portal-callout.is-hvac {
-  --shaft-portal-callout-accent: #79b6cf;
-}
-
-.shaft-portal-callout.is-electrical {
-  --shaft-portal-callout-accent: #c39843;
-}
-
-.shaft-portal-callout.is-plumbing {
-  --shaft-portal-callout-accent: #258fa8;
-}
-
-.shaft-portal-callout.is-fire {
-  --shaft-portal-callout-accent: #b84842;
-}
-
-.shaft-portal-callout.is-bms {
-  --shaft-portal-callout-accent: #7469a3;
 }
 
 .shaft-vignette {
@@ -2526,16 +2211,7 @@ a:focus-visible {
   left: 0;
   display: block;
   height: 1px;
-  background: rgba(17, 18, 20, 0.3);
-}
-
-.shaft-progress > i > span {
-  display: block;
-  width: 100%;
-  height: 1px;
-  background: rgba(17, 18, 20, 0.78);
-  transform: scaleX(0);
-  transform-origin: left center;
+  background: rgba(17, 18, 20, 0.48);
 }
 
 .shaft-scroll-cue {
@@ -2588,7 +2264,8 @@ a:focus-visible {
 }
 
 .shaft-journey button:focus-visible,
-.shaft-journey a:focus-visible {
+.shaft-journey a:focus-visible,
+.shaft-journey .projects-threshold__hero h2:focus-visible {
   outline: 1px solid rgba(17, 18, 20, 0.78);
   outline-offset: 6px;
 }
@@ -2606,28 +2283,21 @@ a:focus-visible {
     drop-shadow(0 -1.25rem 1.5rem rgba(17, 18, 20, 0.13));
 }
 
-.shaft-journey .projects-threshold--portal {
-  --projects-portal-anchor-offset: 0px;
-  --projects-portal-inset-x: 43%;
-  --projects-portal-inset-y: 38%;
-  --projects-portal-opacity: 0;
-  --projects-portal-pitch: 16deg;
-  --projects-portal-radius: 1.1rem;
-  --projects-portal-twist: -2.4deg;
+.shaft-journey .projects-threshold--shaft-exit {
+  margin-top: -144svh;
 }
 
-.shaft-journey .projects-threshold--portal .projects-threshold__frame {
-  border: 1px solid rgba(17, 18, 20, 0.25);
-  clip-path: inset(
-    var(--projects-portal-inset-y) var(--projects-portal-inset-x)
-      round var(--projects-portal-radius)
-  );
-  opacity: var(--projects-portal-opacity);
-  transform: translate3d(0, var(--projects-portal-anchor-offset), 0)
-    perspective(90rem) rotateX(var(--projects-portal-pitch))
-    rotateZ(var(--projects-portal-twist));
-  transform-origin: center;
-  will-change: clip-path, opacity, transform;
+.shaft-journey .projects-threshold--shaft-exit .projects-threshold__frame {
+  border-top-color: rgba(17, 18, 20, 0.46);
+  clip-path: none;
+  box-shadow: 0 -1.25rem 3.5rem rgba(17, 18, 20, 0.08);
+  filter: none;
+  transform: none;
+  will-change: auto;
+}
+
+.shaft-journey .projects-threshold--shaft-exit .projects-threshold__frame::before {
+  display: none;
 }
 
 .shaft-journey .projects-threshold__header,
@@ -2643,6 +2313,10 @@ a:focus-visible {
   .shaft-story {
     height: 820svh;
     min-height: 820svh;
+  }
+
+  .shaft-journey .projects-threshold--shaft-exit {
+    margin-top: -130svh;
   }
 
   .shaft-viewport {
@@ -2661,40 +2335,6 @@ a:focus-visible {
       ),
       radial-gradient(circle at 55% 70%, rgba(17, 18, 20, 0.035), transparent 18rem);
     opacity: var(--shaft-vignette-opacity);
-  }
-
-  .shaft-orchestrics-portal__plane {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: min(138vw, 46rem);
-    translate: -50% -50%;
-  }
-
-  .shaft-orchestrics-portal__meta {
-    top: 34.5%;
-    align-items: center;
-    flex-direction: column;
-    gap: 0.36rem;
-    width: 31%;
-    font-size: 0.38rem;
-    text-align: center;
-  }
-
-  .shaft-portal-callout {
-    gap: 0.24rem;
-    min-width: 10.75rem;
-    max-width: calc(100vw - 3rem);
-  }
-
-  .shaft-portal-callout strong {
-    font-size: 0.6rem;
-  }
-
-  .shaft-portal-callout small {
-    overflow: hidden;
-    font-size: 0.46rem;
-    text-overflow: ellipsis;
   }
 
   .shaft-chapter-mark {
@@ -2821,7 +2461,6 @@ a:focus-visible {
     opacity: 0;
   }
 
-  .shaft-orchestrics-portal,
   .shaft-canvas {
     display: none;
   }
@@ -2831,7 +2470,15 @@ a:focus-visible {
     display: none;
   }
 
-  .shaft-journey .projects-threshold--portal .projects-threshold__frame {
+  .shaft-journey .projects-threshold--shaft-exit {
+    --projects-header-opacity: 1;
+    --projects-index-opacity: 1;
+    --projects-index-shift: 0;
+    --projects-rule-scale: 1;
+    margin-top: 0;
+  }
+
+  .shaft-journey .projects-threshold--shaft-exit .projects-threshold__frame {
     clip-path: none;
     opacity: 1;
     transform: none;

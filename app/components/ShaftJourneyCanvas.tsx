@@ -1086,38 +1086,26 @@ export function ShaftJourneyCanvas({
         interiorY + (isMobile ? 1.65 : 1.85),
         -1.25,
       );
-      const exitPosition = new THREE.Vector3(0.12, 17.4, isMobile ? 4.8 : 4.15);
-      const exitTarget = new THREE.Vector3(0, 20.2, -0.45);
-      const resolvePosition = new THREE.Vector3(0, 21.6, isMobile ? 6.8 : 5.8);
-      const resolveTarget = new THREE.Vector3(0, 23.35, -0.1);
-      const portalPosition = new THREE.Vector3(0, 24.3, isMobile ? 8.4 : 7.1);
-      const portalTarget = new THREE.Vector3(0, 25.5, 0);
+      const clearPosition = new THREE.Vector3(0.12, 19.4, isMobile ? 5.3 : 4.9);
+      const clearTarget = new THREE.Vector3(0, 22, -0.35);
 
       if (progress <= 0.82) {
         camera.position.copy(interiorPosition);
         cameraTarget.copy(interiorTarget);
-      } else if (progress <= 0.9) {
-        const exit = smoothstep(0.82, 0.9, progress);
-        camera.position.copy(interiorPosition).lerp(exitPosition, exit);
-        cameraTarget.copy(interiorTarget).lerp(exitTarget, exit);
-      } else if (progress <= 0.955) {
-        const resolve = smoothstep(0.9, 0.955, progress);
-        camera.position.copy(exitPosition).lerp(resolvePosition, resolve);
-        cameraTarget.copy(exitTarget).lerp(resolveTarget, resolve);
       } else {
-        const settle = smoothstep(0.955, 0.995, progress);
-        camera.position.copy(resolvePosition).lerp(portalPosition, settle);
-        cameraTarget.copy(resolveTarget).lerp(portalTarget, settle);
+        const exit = smoothstep(0.82, 0.95, progress);
+        camera.position.copy(interiorPosition).lerp(clearPosition, exit);
+        cameraTarget.copy(interiorTarget).lerp(clearTarget, exit);
       }
 
-      const exitPointer = 1 - smoothstep(0.88, 0.96, progress);
+      const exitPointer = 1 - smoothstep(0.86, 0.94, progress);
       camera.position.x += pointer.x * lerp(0.06, 0.18, exitPointer);
       camera.position.y -= pointer.y * lerp(0.04, 0.16, exitPointer);
       cameraTarget.x += pointer.x * 0.08 * exitPointer;
       cameraTarget.y -= pointer.y * 0.05 * exitPointer;
       const interiorFov = isMobile ? 59 : isCompact ? 54 : 51;
-      const portalFov = isMobile ? 44 : 38;
-      const nextFov = lerp(interiorFov, portalFov, smoothstep(0.84, 0.96, progress));
+      const exitFov = isMobile ? 50 : isCompact ? 47 : 45;
+      const nextFov = lerp(interiorFov, exitFov, smoothstep(0.84, 0.94, progress));
       if (Math.abs(camera.fov - nextFov) > 0.01) {
         camera.fov = nextFov;
         camera.updateProjectionMatrix();
@@ -1127,7 +1115,7 @@ export function ShaftJourneyCanvas({
 
     const applyProgress = (progress: number, pointerDamping: number) => {
       pointer.lerp(pointerTarget, pointerDamping);
-      const shaftFade = 1 - smoothstep(0.865, 0.945, progress);
+      const shaftFade = 1 - smoothstep(0.885, 0.955, progress);
       const roofOpen = smoothstep(0.755, 0.875, progress);
 
       roofLouvers.forEach((louver, index) => {

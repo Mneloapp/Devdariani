@@ -5,7 +5,7 @@ import { useEffect, useRef } from "react";
 
 type ProjectsThresholdProps = {
   handoffProgressRef: RefObject<number>;
-  variant?: "default" | "portal";
+  variant?: "default" | "shaft-exit";
 };
 
 function smoothstep(min: number, max: number, value: number) {
@@ -18,6 +18,7 @@ export function ProjectsThreshold({
   variant = "default",
 }: ProjectsThresholdProps) {
   const sectionRef = useRef<HTMLElement>(null);
+  const frameRef = useRef<HTMLDivElement>(null);
   const titleRef = useRef<HTMLHeadingElement>(null);
 
   useEffect(() => {
@@ -30,61 +31,47 @@ export function ProjectsThreshold({
       if (!section) return;
 
       const rect = section.getBoundingClientRect();
-      const viewportHeight = Math.max(1, window.innerHeight);
+      const viewportHeight = Math.max(
+        1,
+        frameRef.current?.offsetHeight ?? document.documentElement.clientHeight,
+      );
       const rawProgress = media.matches
         ? 1
         : Math.min(1, Math.max(0, (viewportHeight - rect.top) / viewportHeight));
       const gateProgress = media.matches ? 1 : handoffProgressRef.current;
-      const effectiveProgress = Math.min(rawProgress, gateProgress);
-      const planeProgress = smoothstep(0, 0.72, effectiveProgress);
-      const headerProgress = smoothstep(0.18, 0.62, effectiveProgress);
-      const indexProgress = smoothstep(0.5, 0.96, effectiveProgress);
-      const gateOffset =
-        variant === "portal" ? 0 : (rawProgress - effectiveProgress) * viewportHeight;
-      const portalAnchorOffset = variant === "portal" ? -Math.max(0, rect.top) : 0;
-      const compactPortal = window.innerWidth <= 900;
-      const portalInsetX = compactPortal ? 36 : 43;
-      const portalInsetY = compactPortal ? 41 : 38;
+      const isShaftExit = variant === "shaft-exit";
+      const effectiveProgress = isShaftExit
+        ? rawProgress
+        : Math.min(rawProgress, gateProgress);
+      const planeProgress = smoothstep(0, isShaftExit ? 0.88 : 0.72, effectiveProgress);
+      const headerProgress = smoothstep(
+        isShaftExit ? 0.28 : 0.18,
+        isShaftExit ? 0.68 : 0.62,
+        effectiveProgress,
+      );
+      const indexProgress = smoothstep(isShaftExit ? 0.56 : 0.5, 0.96, effectiveProgress);
+      const gateOffset = isShaftExit
+        ? 0
+        : (rawProgress - effectiveProgress) * viewportHeight;
 
       section.style.setProperty("--projects-clip", `${((1 - planeProgress) * 17).toFixed(2)}%`);
       section.style.setProperty("--projects-gate-offset", `${gateOffset.toFixed(2)}px`);
       section.style.setProperty("--projects-header-opacity", headerProgress.toFixed(3));
       section.style.setProperty("--projects-index-opacity", indexProgress.toFixed(3));
-      section.style.setProperty("--projects-index-shift", `${((1 - indexProgress) * 2.5).toFixed(2)}rem`);
+      section.style.setProperty(
+        "--projects-index-shift",
+        `${((1 - indexProgress) * 2.5).toFixed(2)}rem`,
+      );
       section.style.setProperty("--projects-rule-scale", planeProgress.toFixed(3));
-      section.style.setProperty(
-        "--projects-portal-anchor-offset",
-        `${portalAnchorOffset.toFixed(2)}px`,
-      );
-      section.style.setProperty(
-        "--projects-portal-opacity",
-        smoothstep(0.01, 0.48, effectiveProgress).toFixed(3),
-      );
-      section.style.setProperty(
-        "--projects-portal-inset-x",
-        `${((1 - planeProgress) * portalInsetX).toFixed(2)}%`,
-      );
-      section.style.setProperty(
-        "--projects-portal-inset-y",
-        `${((1 - planeProgress) * portalInsetY).toFixed(2)}%`,
-      );
-      section.style.setProperty(
-        "--projects-portal-pitch",
-        `${((1 - planeProgress) * 16).toFixed(2)}deg`,
-      );
-      section.style.setProperty(
-        "--projects-portal-twist",
-        `${((1 - planeProgress) * -2.4).toFixed(2)}deg`,
-      );
-      section.style.setProperty(
-        "--projects-portal-radius",
-        `${((1 - planeProgress) * 1.1).toFixed(3)}rem`,
-      );
 
       const letters = titleRef.current?.querySelectorAll<HTMLElement>("[data-project-letter]");
       letters?.forEach((letter, index) => {
-        const stagger = index * 0.045;
-        const reveal = smoothstep(0.12 + stagger, 0.58 + stagger, effectiveProgress);
+        const stagger = index * (isShaftExit ? 0.035 : 0.045);
+        const reveal = smoothstep(
+          (isShaftExit ? 0.22 : 0.12) + stagger,
+          (isShaftExit ? 0.62 : 0.58) + stagger,
+          effectiveProgress,
+        );
         const inverse = 1 - reveal;
         letter.style.opacity = reveal.toFixed(3);
         letter.style.clipPath = `inset(0 0 ${(inverse * 100).toFixed(2)}% 0)`;
@@ -93,7 +80,7 @@ export function ProjectsThreshold({
         ).toFixed(2)}deg)`;
       });
 
-      if (!media.matches && rawProgress > gateProgress + 0.0005) {
+      if (!media.matches && !isShaftExit && rawProgress > gateProgress + 0.0005) {
         animationFrame = window.requestAnimationFrame(update);
       }
     };
@@ -118,11 +105,13 @@ export function ProjectsThreshold({
   return (
     <section
       aria-labelledby="projects-title"
-      className={`projects-threshold ${variant === "portal" ? "projects-threshold--portal" : ""}`}
+      className={`projects-threshold ${
+        variant === "shaft-exit" ? "projects-threshold--shaft-exit" : ""
+      }`}
       id="projects"
       ref={sectionRef}
     >
-      <div className="projects-threshold__frame">
+      <div className="projects-threshold__frame" ref={frameRef}>
         <div aria-hidden="true" className="projects-threshold__grid" />
         <header className="projects-threshold__header">
           <span>Projects</span>
