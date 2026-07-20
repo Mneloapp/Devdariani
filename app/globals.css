@@ -1638,7 +1638,7 @@ a:focus-visible {
 /* Shaft Journey study — isolated from the approved Spatial Systems Weave. */
 html:has(.shaft-journey[data-tone="dark"]),
 body:has(.shaft-journey[data-tone="dark"]) {
-  background: #1b2024;
+  background: #252b2e;
 }
 
 html:has(.shaft-journey[data-theme="mineral"]),
@@ -1652,14 +1652,14 @@ body:has(.shaft-journey[data-theme="bronze"]) {
 }
 
 .shaft-journey {
-  --shaft-paper: #1b2024;
-  --shaft-paper-deep: #242a2f;
-  --shaft-ink: #f0ece4;
-  --shaft-graphite: #c7c4bd;
-  --shaft-steel: #9ca4a7;
-  --shaft-ink-rgb: 240, 236, 228;
-  --shaft-paper-rgb: 27, 32, 36;
-  --shaft-shadow-rgb: 5, 8, 10;
+  --shaft-paper: #252b2e;
+  --shaft-paper-deep: #2f363a;
+  --shaft-ink: #f1ede5;
+  --shaft-graphite: #cccbc5;
+  --shaft-steel: #aab2b5;
+  --shaft-ink-rgb: 241, 237, 229;
+  --shaft-paper-rgb: 37, 43, 46;
+  --shaft-shadow-rgb: 10, 14, 16;
   min-height: 100svh;
   overflow-x: clip;
   background: var(--shaft-paper);
@@ -1845,6 +1845,13 @@ body:has(.shaft-journey[data-theme="bronze"]) {
     visibility 0ms step-start;
 }
 
+.shaft-narrative-panel[data-shaft-panel="identity"] {
+  --shaft-identity-copy-opacity: 1;
+  --shaft-identity-copy-shift: 0rem;
+  right: auto;
+  width: min(62vw, 68rem);
+}
+
 .shaft-identity-state,
 .shaft-system-story {
   padding-top: clamp(3.8rem, 8vh, 6rem);
@@ -1857,11 +1864,24 @@ body:has(.shaft-journey[data-theme="bronze"]) {
 
 .shaft-display-wordmark {
   display: block;
-  width: clamp(18rem, 34vw, 31rem);
+  width: min(58vw, 64rem);
   max-width: 100%;
   height: auto;
   color: rgba(17, 18, 20, 0.98);
   filter: drop-shadow(0 0 7px rgba(17, 18, 20, 0.055));
+}
+
+.shaft-display-wordmark path {
+  transform-box: fill-box;
+  transform-origin: bottom center;
+  will-change: opacity, clip-path, transform;
+}
+
+.shaft-identity-state p,
+.shaft-identity-state > span {
+  opacity: var(--shaft-identity-copy-opacity);
+  transform: translate3d(0, var(--shaft-identity-copy-shift), 0);
+  will-change: opacity, transform;
 }
 
 .shaft-identity-state p {
@@ -2604,13 +2624,17 @@ body:has(.shaft-journey[data-theme="bronze"]) {
     height: 19rem;
   }
 
+  .shaft-narrative-panel[data-shaft-panel="identity"] {
+    width: 100%;
+  }
+
   .shaft-identity-state,
   .shaft-system-story {
     padding-top: clamp(2.7rem, 5.8vh, 3.7rem);
   }
 
   .shaft-display-wordmark {
-    width: min(86vw, 35rem);
+    width: min(92vw, 40rem);
   }
 
   .shaft-identity-state p {
@@ -2714,6 +2738,12 @@ body:has(.shaft-journey[data-theme="bronze"]) {
 
   .shaft-canvas {
     display: none;
+  }
+
+  .shaft-display-wordmark path {
+    opacity: 1 !important;
+    clip-path: none !important;
+    transform: none !important;
   }
 
   .shaft-stage-rail,

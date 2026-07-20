@@ -151,6 +151,8 @@ export function ShaftJourneyExperience() {
   const progressRef = useRef(0);
   const progressTextRef = useRef<HTMLSpanElement>(null);
   const narrativeSlotRef = useRef<HTMLDivElement>(null);
+  const identityPanelRef = useRef<HTMLDivElement>(null);
+  const lastIdentityProgressRef = useRef(-1);
   const narrativeFrameRef = useRef<((progress: number) => void) | null>(null);
   const lastNarrativeProgressRef = useRef(-1);
   const activeIndexRef = useRef(0);
@@ -287,6 +289,38 @@ export function ShaftJourneyExperience() {
       }
 
       const slot = narrativeSlotRef.current;
+      const identityPanel = identityPanelRef.current;
+      const identityLocal = reducedMotion
+        ? 0
+        : clamp01(progress / shaftSystemWaves.hvac[0]);
+      if (
+        identityPanel &&
+        Math.abs(identityLocal - lastIdentityProgressRef.current) >= 0.00004
+      ) {
+        lastIdentityProgressRef.current = identityLocal;
+        const copyExit = reducedMotion ? 0 : smoothstep(0.08, 0.52, identityLocal);
+        identityPanel.style.setProperty(
+          "--shaft-identity-copy-opacity",
+          (1 - copyExit).toFixed(3),
+        );
+        identityPanel.style.setProperty(
+          "--shaft-identity-copy-shift",
+          `${(copyExit * 0.5).toFixed(3)}rem`,
+        );
+
+        identityPanel
+          .querySelectorAll<SVGPathElement>(".shaft-display-wordmark path")
+          .forEach((letter, index) => {
+            const stagger = index * 0.035;
+            const exit = smoothstep(0.01 + stagger, 0.5 + stagger, identityLocal);
+            letter.style.opacity = (1 - exit).toFixed(3);
+            letter.style.clipPath = `inset(0 0 ${(exit * 100).toFixed(2)}% 0)`;
+            letter.style.transform = `translate3d(0, ${(exit * 72).toFixed(2)}%, 0) skewY(${(
+              exit * -4
+            ).toFixed(2)}deg)`;
+          });
+      }
+
       if (!slot || !isSystemStage(stage.id)) return;
       const [start, end] = shaftSystemWaves[stage.id];
       const local = clamp01((progress - start) / (end - start));
@@ -406,6 +440,7 @@ export function ShaftJourneyExperience() {
                 className={`shaft-narrative-panel ${index === activeIndex ? "is-active" : ""}`}
                 data-shaft-panel={stage.id}
                 key={stage.id}
+                ref={stage.id === "identity" ? identityPanelRef : undefined}
               >
                 {stage.id === "identity" ? (
                   <div className="shaft-identity-state">
