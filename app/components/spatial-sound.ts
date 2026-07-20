@@ -52,7 +52,8 @@ function smoothstep(from: number, to: number, value: number) {
 function toneGainAtProgress(id: SystemId, progress: number) {
   const [start, end] = systemWaves[id];
   const local = clamp01((progress - start) / (end - start));
-  return TONE_PROFILE[id].gain * smoothstep(0.62, 0.94, local);
+  const finaleFade = 1 - smoothstep(systemWaves.bms[1], 0.96, progress);
+  return TONE_PROFILE[id].gain * smoothstep(0.62, 0.94, local) * finaleFade;
 }
 
 function createNoiseBuffer(context: AudioContext) {

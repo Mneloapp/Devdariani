@@ -55,15 +55,24 @@ test("renders the isolated shaft journey route", async () => {
   assert.match(html, /data-tone=["']dark["']/i);
   assert.match(
     html,
-    /class=["'][^"']*\bprojects-threshold\b[^"']*\bprojects-threshold--shaft-exit\b[^"']*["']/i,
+    /class=["'][^"']*\borigin-chapter\b[^"']*["']/i,
   );
-  assert.match(html, /\bid=["']projects["']/i);
-  assert.match(html, /\bid=["']projects-title["']/i);
-  assert.equal((html.match(/\bdata-project-letter=/gi) ?? []).length, 8);
+  assert.match(html, /\bid=["']founder-title["']/i);
+  assert.match(html, /Before Devdariani became a company/i);
+  assert.match(html, /Giorgi Devdariani/i);
+  assert.match(html, /Founder \/ MEP Engineer/i);
+  assert.match(html, /Not separate systems/i);
+  assert.match(html, /The discipline of making every system work as one/i);
+  assert.match(html, /From experience/i);
+  assert.match(html, /Discuss a project/i);
   assert.match(
     html,
-    /After BMS completes[\s\S]*?roof opens[\s\S]*?camera exits the shaft[\s\S]*?Projects index rises directly/i,
+    /After BMS completes[\s\S]*?roof opens[\s\S]*?camera exits the shaft[\s\S]*?five system traces converge/i,
   );
+
+  assert.doesNotMatch(html, /Selected work will be published shortly/i);
+  assert.doesNotMatch(html, /\bid=["']projects-title["']/i);
+  assert.doesNotMatch(html, /projects-threshold--shaft-exit/i);
 
   assert.doesNotMatch(
     html,

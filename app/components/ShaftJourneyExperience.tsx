@@ -10,7 +10,7 @@ import {
 import { systemWaves as weaveSoundWaves } from "@/app/lib/weave-data";
 import { AnimatedDisplayText } from "./AnimatedDisplayText";
 import { DevdarianiDisplayWordmark } from "./DevdarianiDisplayWordmark";
-import { ProjectsThreshold } from "./ProjectsThreshold";
+import { FounderOrchestricsChapter } from "./FounderOrchestricsChapter";
 import { ShaftJourneyCanvas, type ShaftTheme } from "./ShaftJourneyCanvas";
 import {
   useWeaveSoundscape,
@@ -108,7 +108,13 @@ function mapJourneyProgressToSound(progress: number) {
 
   if (!system) {
     if (progress < shaftSystemWaves.hvac[0]) return 0;
-    return weaveSoundWaves.bms[1] + (progress - shaftSystemWaves.bms[1]) * 0.08;
+    const shaftFinaleProgress = clamp01(
+      (progress - shaftSystemWaves.bms[1]) / (1 - shaftSystemWaves.bms[1]),
+    );
+    return (
+      weaveSoundWaves.bms[1] +
+      (1 - weaveSoundWaves.bms[1]) * shaftFinaleProgress
+    );
   }
 
   const [fromStart, fromEnd] = shaftSystemWaves[system.id];
@@ -200,7 +206,7 @@ export function ShaftJourneyExperience() {
   const lastNarrativeProgressRef = useRef(-1);
   const activeIndexRef = useRef(0);
   const firstStageButtonRef = useRef<HTMLButtonElement>(null);
-  const projectsHandoffRef = useRef(0);
+  const founderHandoffRef = useRef(0);
   const scrollCueRef = useRef<HTMLButtonElement>(null);
   const soundToggleRef = useRef<HTMLButtonElement>(null);
   const stageRailRef = useRef<HTMLElement>(null);
@@ -306,15 +312,15 @@ export function ShaftJourneyExperience() {
       const stage = shaftStages[nextIndex];
       const story = storyRef.current;
       /*
-       * BMS completes at 82%. From that same beat, the camera leaves the shaft while the Projects
-       * plane rises from the viewport edge. Keeping both motions concurrent makes the handoff one
-       * continuous exit instead of introducing a separate finale.
+       * BMS completes at 82%. From that same beat, the camera leaves the shaft while the Origin
+       * chapter rises from the viewport edge. Keeping both motions concurrent makes the handoff
+       * one continuous exit instead of introducing a separate finale.
        */
       const exitProgress = reducedMotion ? 1 : smoothstep(0.82, 0.95, progress);
       const interfaceExit = reducedMotion ? 0 : smoothstep(0.84, 0.905, progress);
       const canvasOpacity = reducedMotion ? 0 : 1 - smoothstep(0.9, 0.965, progress);
 
-      projectsHandoffRef.current = exitProgress;
+      founderHandoffRef.current = exitProgress;
       story?.style.setProperty("--shaft-interface-opacity", (1 - interfaceExit).toFixed(3));
       story?.style.setProperty("--shaft-canvas-opacity", canvasOpacity.toFixed(3));
       story?.style.setProperty(
@@ -328,7 +334,7 @@ export function ShaftJourneyExperience() {
           soundToggleRef.current === document.activeElement;
         if (shouldHideInterface && interfaceHadFocus) {
           window.requestAnimationFrame(() =>
-            document.getElementById("projects-title")?.focus({ preventScroll: true }),
+            document.getElementById("founder-title")?.focus({ preventScroll: true }),
           );
         }
         interfaceHiddenRef.current = shouldHideInterface;
@@ -644,12 +650,12 @@ export function ShaftJourneyExperience() {
           <p className="sr-only">
             The camera travels upward through a coordinated engineering shaft containing HVAC,
             electrical, plumbing, fire protection, and BMS systems. After BMS completes and the
-            roof opens, the camera exits the shaft while the Projects index rises directly into
-            view.
+            roof opens, the camera exits the shaft while five system traces converge into the
+            founder and Orchestrics chapter.
           </p>
         </div>
       </section>
-      <ProjectsThreshold handoffProgressRef={projectsHandoffRef} variant="shaft-exit" />
+      <FounderOrchestricsChapter handoffProgressRef={founderHandoffRef} />
     </main>
   );
 }
