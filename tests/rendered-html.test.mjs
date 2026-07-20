@@ -37,10 +37,14 @@ test("renders development preview metadata", async () => {
     response.headers.get("content-type") ?? "",
     /^text\/html\b/i,
   );
-  assert.match(await response.text(), developmentPreviewMeta);
+  const html = await response.text();
+  assert.match(html, developmentPreviewMeta);
+  assert.match(html, /class=["'][^"']*\bshaft-journey\b[^"']*["']/i);
+  assert.match(html, /class=["'][^"']*\bcorridor-chapter\b[^"']*["']/i);
+  assert.doesNotMatch(html, /class=["'][^"']*\bspatial-weave\b[^"']*["']/i);
 });
 
-test("renders the isolated shaft journey route", async () => {
+test("renders the shaft-to-city journey on the isolated route", async () => {
   const worker = await loadWorker();
   const response = await fetchHtml(worker, "/shaft");
   const html = await response.text();
@@ -53,23 +57,26 @@ test("renders the isolated shaft journey route", async () => {
   assert.match(html, /Orchestrics™/i);
   assert.match(html, /data-theme=["']dark["']/i);
   assert.match(html, /data-tone=["']dark["']/i);
-  assert.match(
-    html,
-    /class=["'][^"']*\borigin-chapter\b[^"']*["']/i,
-  );
+  assert.match(html, /class=["'][^"']*\bcorridor-chapter\b[^"']*["']/i);
+  assert.match(html, /class=["'][^"']*\bcorridor-canvas\b[^"']*["']/i);
   assert.match(html, /\bid=["']founder-title["']/i);
-  assert.match(html, /Before Devdariani became a company/i);
-  assert.match(html, /Giorgi Devdariani/i);
+  assert.match(html, />Giorgi</i);
+  assert.match(html, /aria-label=["']DEVDARIANI["']/i);
   assert.match(html, /Founder \/ MEP Engineer/i);
-  assert.match(html, /Not separate systems/i);
+  assert.match(html, /The drawing\./i);
+  assert.match(html, /The site\./i);
+  assert.match(html, /The building\./i);
   assert.match(html, /The discipline of making every system work as one/i);
-  assert.match(html, /From experience/i);
+  assert.match(html, /What works behind the walls/i);
+  assert.match(html, /shapes the life beyond them/i);
   assert.match(html, /Discuss a project/i);
   assert.match(
     html,
-    /After BMS completes[\s\S]*?roof opens[\s\S]*?camera exits the shaft[\s\S]*?five system traces converge/i,
+    /After BMS completes[\s\S]*?roof opens[\s\S]*?camera exits the shaft[\s\S]*?coordinated engineering corridor[\s\S]*?city/i,
   );
 
+  assert.doesNotMatch(html, /Portrait source pending/i);
+  assert.doesNotMatch(html, /\borigin-chapter\b/i);
   assert.doesNotMatch(html, /Selected work will be published shortly/i);
   assert.doesNotMatch(html, /\bid=["']projects-title["']/i);
   assert.doesNotMatch(html, /projects-threshold--shaft-exit/i);

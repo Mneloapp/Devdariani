@@ -10,7 +10,7 @@ import {
 import { systemWaves as weaveSoundWaves } from "@/app/lib/weave-data";
 import { AnimatedDisplayText } from "./AnimatedDisplayText";
 import { DevdarianiDisplayWordmark } from "./DevdarianiDisplayWordmark";
-import { FounderOrchestricsChapter } from "./FounderOrchestricsChapter";
+import { CorridorJourneyChapter } from "./CorridorJourneyChapter";
 import { ShaftJourneyCanvas, type ShaftTheme } from "./ShaftJourneyCanvas";
 import {
   useWeaveSoundscape,
@@ -206,7 +206,7 @@ export function ShaftJourneyExperience() {
   const lastNarrativeProgressRef = useRef(-1);
   const activeIndexRef = useRef(0);
   const firstStageButtonRef = useRef<HTMLButtonElement>(null);
-  const founderHandoffRef = useRef(0);
+  const corridorHandoffRef = useRef(0);
   const scrollCueRef = useRef<HTMLButtonElement>(null);
   const soundToggleRef = useRef<HTMLButtonElement>(null);
   const stageRailRef = useRef<HTMLElement>(null);
@@ -312,15 +312,15 @@ export function ShaftJourneyExperience() {
       const stage = shaftStages[nextIndex];
       const story = storyRef.current;
       /*
-       * BMS completes at 82%. From that same beat, the camera leaves the shaft while the Origin
-       * chapter rises from the viewport edge. Keeping both motions concurrent makes the handoff
-       * one continuous exit instead of introducing a separate finale.
+       * BMS completes at 82%. From that same beat, the camera leaves the shaft while the
+       * engineering corridor rises from the viewport edge. Keeping both motions concurrent makes
+       * the handoff one continuous passage instead of introducing a separate finale.
        */
       const exitProgress = reducedMotion ? 1 : smoothstep(0.82, 0.95, progress);
       const interfaceExit = reducedMotion ? 0 : smoothstep(0.84, 0.905, progress);
       const canvasOpacity = reducedMotion ? 0 : 1 - smoothstep(0.9, 0.965, progress);
 
-      founderHandoffRef.current = exitProgress;
+      corridorHandoffRef.current = exitProgress;
       story?.style.setProperty("--shaft-interface-opacity", (1 - interfaceExit).toFixed(3));
       story?.style.setProperty("--shaft-canvas-opacity", canvasOpacity.toFixed(3));
       story?.style.setProperty(
@@ -650,12 +650,13 @@ export function ShaftJourneyExperience() {
           <p className="sr-only">
             The camera travels upward through a coordinated engineering shaft containing HVAC,
             electrical, plumbing, fire protection, and BMS systems. After BMS completes and the
-            roof opens, the camera exits the shaft while five system traces converge into the
-            founder and Orchestrics chapter.
+            roof opens, the camera exits the shaft into a coordinated engineering corridor. The
+            corridor introduces Giorgi Devdariani and Orchestrics before opening onto a city that
+            moves from daylight into night.
           </p>
         </div>
       </section>
-      <FounderOrchestricsChapter handoffProgressRef={founderHandoffRef} />
+      <CorridorJourneyChapter handoffProgressRef={corridorHandoffRef} theme={theme} />
     </main>
   );
 }
