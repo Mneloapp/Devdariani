@@ -63,20 +63,20 @@ const SHAFT_SCENE_PALETTES = {
     wallOpacity: 0.3,
   },
   dark: {
-    ambient: "#F3EEE6",
-    ambientIntensity: 0.8,
-    background: "#252B2E",
-    exposure: 1.02,
-    fill: "#91A2A9",
-    fillIntensity: 0.82,
-    grid: "#9AA3A7",
+    ambient: "#F5F0E8",
+    ambientIntensity: 0.82,
+    background: "#30383C",
+    exposure: 1.03,
+    fill: "#9AAAB1",
+    fillIntensity: 0.84,
+    grid: "#A7B0B3",
     gridOpacity: 0.2,
-    key: "#FFF8ED",
+    key: "#FFF9F0",
     keyIntensity: 2.35,
-    structure: "#C5CACB",
+    structure: "#CED3D3",
     structureOpacity: 0.38,
-    tracer: "#FAF3E9",
-    wall: "#343B3F",
+    tracer: "#FCF6EE",
+    wall: "#414A4F",
     wallOpacity: 0.34,
   },
   light: {
@@ -881,7 +881,9 @@ export function ShaftJourneyCanvas({
     fireMain.position.set(SYSTEM_LANES.fire.x, shaftCenterY - 0.15, SYSTEM_LANES.fire.z);
     fire.add(fireMain);
 
-    [-10.2, -4.7, 0.3, 4.4, 9.3].forEach((level) => {
+    // The lowest flange used to sit behind the HVAC take-off during its reveal
+    // and read as a broad shadow. The remaining levels cover the Fire journey.
+    [-4.7, 0.3, 4.4, 9.3].forEach((level) => {
       [-0.09, 0.09].forEach((offset) => {
         const flange = new THREE.Mesh(
           new THREE.CylinderGeometry(0.34, 0.34, 0.075, 18),

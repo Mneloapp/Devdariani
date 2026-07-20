@@ -1638,7 +1638,7 @@ a:focus-visible {
 /* Shaft Journey study — isolated from the approved Spatial Systems Weave. */
 html:has(.shaft-journey[data-tone="dark"]),
 body:has(.shaft-journey[data-tone="dark"]) {
-  background: #252b2e;
+  background: #30383c;
 }
 
 html:has(.shaft-journey[data-theme="mineral"]),
@@ -1652,14 +1652,14 @@ body:has(.shaft-journey[data-theme="bronze"]) {
 }
 
 .shaft-journey {
-  --shaft-paper: #252b2e;
-  --shaft-paper-deep: #2f363a;
-  --shaft-ink: #f1ede5;
-  --shaft-graphite: #cccbc5;
-  --shaft-steel: #aab2b5;
-  --shaft-ink-rgb: 241, 237, 229;
-  --shaft-paper-rgb: 37, 43, 46;
-  --shaft-shadow-rgb: 10, 14, 16;
+  --shaft-paper: #30383c;
+  --shaft-paper-deep: #394247;
+  --shaft-ink: #f3efe7;
+  --shaft-graphite: #d4d2cc;
+  --shaft-steel: #b5bec1;
+  --shaft-ink-rgb: 243, 239, 231;
+  --shaft-paper-rgb: 48, 56, 60;
+  --shaft-shadow-rgb: 14, 18, 20;
   min-height: 100svh;
   overflow-x: clip;
   background: var(--shaft-paper);
@@ -1849,7 +1849,7 @@ body:has(.shaft-journey[data-theme="bronze"]) {
   --shaft-identity-copy-opacity: 1;
   --shaft-identity-copy-shift: 0rem;
   right: auto;
-  width: min(62vw, 68rem);
+  width: min(66vw, 72rem);
 }
 
 .shaft-identity-state,
@@ -1864,7 +1864,7 @@ body:has(.shaft-journey[data-theme="bronze"]) {
 
 .shaft-display-wordmark {
   display: block;
-  width: min(58vw, 64rem);
+  width: min(62vw, 68rem);
   max-width: 100%;
   height: auto;
   color: rgba(17, 18, 20, 0.98);
@@ -2634,7 +2634,7 @@ body:has(.shaft-journey[data-theme="bronze"]) {
   }
 
   .shaft-display-wordmark {
-    width: min(92vw, 40rem);
+    width: min(94vw, 42rem);
   }
 
   .shaft-identity-state p {
@@ -2708,6 +2708,14 @@ body:has(.shaft-journey[data-theme="bronze"]) {
     display: none;
   }
 
+}
+
+@media (max-width: 600px) {
+  .shaft-display-wordmark {
+    width: calc(100% + 0.5rem);
+    max-width: none;
+    margin-left: -0.25rem;
+  }
 }
 
 @media (max-height: 560px) and (max-width: 900px) {
