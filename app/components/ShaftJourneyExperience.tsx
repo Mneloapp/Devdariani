@@ -146,12 +146,55 @@ function applyScrubbedUnits(
   });
 }
 
+function applyIdentityMotion(
+  panel: HTMLElement,
+  progress: number,
+  introProgress: number,
+  reducedMotion: boolean,
+) {
+  const intro = reducedMotion ? 1 : clamp01(introProgress);
+  const identityLocal = reducedMotion
+    ? 0
+    : clamp01(progress / shaftSystemWaves.hvac[0]);
+  const copyReveal = smoothstep(0.62, 0.94, intro);
+  const copyExit = reducedMotion ? 0 : smoothstep(0.08, 0.52, identityLocal);
+  const copyVisible = copyReveal * (1 - copyExit);
+
+  panel.style.setProperty(
+    "--shaft-identity-copy-opacity",
+    copyVisible.toFixed(3),
+  );
+  panel.style.setProperty(
+    "--shaft-identity-copy-shift",
+    `${((1 - copyReveal) * 0.45 + copyExit * 0.5).toFixed(3)}rem`,
+  );
+
+  panel
+    .querySelectorAll<SVGPathElement>(".shaft-display-wordmark path")
+    .forEach((letter, index) => {
+      const stagger = index * 0.035;
+      const reveal = smoothstep(0.05 + stagger, 0.48 + stagger, intro);
+      const exit = reducedMotion
+        ? 0
+        : smoothstep(0.01 + stagger, 0.5 + stagger, identityLocal);
+      const visible = reveal * (1 - exit);
+      const inverse = 1 - visible;
+      letter.style.opacity = visible.toFixed(3);
+      letter.style.clipPath = `inset(0 0 ${(inverse * 100).toFixed(2)}% 0)`;
+      letter.style.transform = `translate3d(0, ${(inverse * 72).toFixed(2)}%, 0) skewY(${(
+        inverse * -4
+      ).toFixed(2)}deg)`;
+    });
+}
+
 export function ShaftJourneyExperience() {
   const storyRef = useRef<HTMLElement>(null);
   const progressRef = useRef(0);
   const progressTextRef = useRef<HTMLSpanElement>(null);
   const narrativeSlotRef = useRef<HTMLDivElement>(null);
   const identityPanelRef = useRef<HTMLDivElement>(null);
+  const identityIntroProgressRef = useRef(0);
+  const renderedNarrativeProgressRef = useRef(0);
   const lastIdentityProgressRef = useRef(-1);
   const narrativeFrameRef = useRef<((progress: number) => void) | null>(null);
   const lastNarrativeProgressRef = useRef(-1);
@@ -164,6 +207,9 @@ export function ShaftJourneyExperience() {
   const waveLabelRef = useRef<HTMLDivElement>(null);
   const interfaceHiddenRef = useRef(false);
   const [activeIndex, setActiveIndex] = useState(0);
+  const [identityIntroStatus, setIdentityIntroStatus] = useState<
+    "pending" | "running" | "complete"
+  >("pending");
   const [interfaceHidden, setInterfaceHidden] = useState(false);
   const [reducedMotion, setReducedMotion] = useState(false);
   const theme = useSyncExternalStore(
@@ -243,6 +289,7 @@ export function ShaftJourneyExperience() {
 
   useEffect(() => {
     const updateNarrative = (progress: number) => {
+      renderedNarrativeProgressRef.current = progress;
       if (Math.abs(progress - lastNarrativeProgressRef.current) < 0.00004) return;
       lastNarrativeProgressRef.current = progress;
 
@@ -298,27 +345,12 @@ export function ShaftJourneyExperience() {
         Math.abs(identityLocal - lastIdentityProgressRef.current) >= 0.00004
       ) {
         lastIdentityProgressRef.current = identityLocal;
-        const copyExit = reducedMotion ? 0 : smoothstep(0.08, 0.52, identityLocal);
-        identityPanel.style.setProperty(
-          "--shaft-identity-copy-opacity",
-          (1 - copyExit).toFixed(3),
+        applyIdentityMotion(
+          identityPanel,
+          progress,
+          identityIntroProgressRef.current,
+          reducedMotion,
         );
-        identityPanel.style.setProperty(
-          "--shaft-identity-copy-shift",
-          `${(copyExit * 0.5).toFixed(3)}rem`,
-        );
-
-        identityPanel
-          .querySelectorAll<SVGPathElement>(".shaft-display-wordmark path")
-          .forEach((letter, index) => {
-            const stagger = index * 0.035;
-            const exit = smoothstep(0.01 + stagger, 0.5 + stagger, identityLocal);
-            letter.style.opacity = (1 - exit).toFixed(3);
-            letter.style.clipPath = `inset(0 0 ${(exit * 100).toFixed(2)}% 0)`;
-            letter.style.transform = `translate3d(0, ${(exit * 72).toFixed(2)}%, 0) skewY(${(
-              exit * -4
-            ).toFixed(2)}deg)`;
-          });
       }
 
       if (!slot || !isSystemStage(stage.id)) return;
@@ -347,6 +379,60 @@ export function ShaftJourneyExperience() {
     updateNarrative(reducedMotion ? 1 : progressRef.current);
     return () => {
       narrativeFrameRef.current = null;
+    };
+  }, [reducedMotion]);
+
+  useEffect(() => {
+    const panel = identityPanelRef.current;
+    if (!panel) return;
+
+    let animationFrame = 0;
+    let startedAt = -1;
+    let cancelled = false;
+
+    const finish = () => {
+      identityIntroProgressRef.current = 1;
+      applyIdentityMotion(
+        panel,
+        renderedNarrativeProgressRef.current,
+        1,
+        reducedMotion,
+      );
+      setIdentityIntroStatus("complete");
+    };
+
+    if (reducedMotion || progressRef.current > 0.001) {
+      finish();
+      return;
+    }
+
+    applyIdentityMotion(panel, renderedNarrativeProgressRef.current, 0, false);
+    setIdentityIntroStatus("running");
+
+    const tick = (now: number) => {
+      if (cancelled) return;
+      if (startedAt < 0) startedAt = now;
+
+      const introProgress = clamp01((now - startedAt) / 1400);
+      identityIntroProgressRef.current = introProgress;
+      applyIdentityMotion(
+        panel,
+        renderedNarrativeProgressRef.current,
+        introProgress,
+        false,
+      );
+
+      if (introProgress < 1) {
+        animationFrame = window.requestAnimationFrame(tick);
+      } else {
+        setIdentityIntroStatus("complete");
+      }
+    };
+
+    animationFrame = window.requestAnimationFrame(tick);
+    return () => {
+      cancelled = true;
+      window.cancelAnimationFrame(animationFrame);
     };
   }, [reducedMotion]);
 
@@ -438,6 +524,9 @@ export function ShaftJourneyExperience() {
               <div
                 aria-hidden={index !== activeIndex}
                 className={`shaft-narrative-panel ${index === activeIndex ? "is-active" : ""}`}
+                data-identity-intro={
+                  stage.id === "identity" ? identityIntroStatus : undefined
+                }
                 data-shaft-panel={stage.id}
                 key={stage.id}
                 ref={stage.id === "identity" ? identityPanelRef : undefined}

@@ -1877,11 +1877,25 @@ body:has(.shaft-journey[data-theme="bronze"]) {
   will-change: opacity, clip-path, transform;
 }
 
+.shaft-narrative-panel[data-identity-intro="pending"]
+  .shaft-display-wordmark
+  path {
+  opacity: 0;
+  clip-path: inset(0 0 100% 0);
+  transform: translate3d(0, 72%, 0) skewY(-4deg);
+}
+
 .shaft-identity-state p,
 .shaft-identity-state > span {
   opacity: var(--shaft-identity-copy-opacity);
   transform: translate3d(0, var(--shaft-identity-copy-shift), 0);
   will-change: opacity, transform;
+}
+
+.shaft-narrative-panel[data-identity-intro="pending"] .shaft-identity-state p,
+.shaft-narrative-panel[data-identity-intro="pending"] .shaft-identity-state > span {
+  opacity: 0;
+  transform: translate3d(0, 0.45rem, 0);
 }
 
 .shaft-identity-state p {
@@ -2751,6 +2765,12 @@ body:has(.shaft-journey[data-theme="bronze"]) {
   .shaft-display-wordmark path {
     opacity: 1 !important;
     clip-path: none !important;
+    transform: none !important;
+  }
+
+  .shaft-narrative-panel[data-identity-intro] .shaft-identity-state p,
+  .shaft-narrative-panel[data-identity-intro] .shaft-identity-state > span {
+    opacity: 1 !important;
     transform: none !important;
   }
 
