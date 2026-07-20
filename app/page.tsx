@@ -1,23 +1,12 @@
-import { DevdarianiExperience } from "@/components/devdariani-v2/DevdarianiExperience";
-import { copy } from "@/lib/devdariani-v2/copy";
+import type { Metadata } from "next";
+import { ShaftJourneyExperience } from "@/app/components/ShaftJourneyExperience";
 
-type HomePageProps = {
-  searchParams: Promise<{ debug3d?: string }>;
+export const metadata: Metadata = {
+  title: "DEVDARIANI — Engineering the Whole",
+  description:
+    "Enter a coordinated MEP core, meet the engineering thinking behind Devdariani, and discover The Art of Orchestrics™.",
 };
 
-export const metadata = {
-  description: "DEVDARIANI — The Art of Orchestrics™. Engineering the Whole.",
-  title: "DEVDARIANI",
-};
-
-export default async function HomePage({ searchParams }: HomePageProps) {
-  const resolvedSearchParams = await searchParams;
-
-  return (
-    <DevdarianiExperience
-      copy={copy.en}
-      debug={resolvedSearchParams.debug3d === "1"}
-      locale="en"
-    />
-  );
+export default function Home() {
+  return <ShaftJourneyExperience />;
 }
